@@ -59,9 +59,13 @@
 
 /* Theme grid */
 .nova-themes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.nova-theme { text-align: left; background: var(--np-surface2); border: 2px solid transparent; border-radius: 11px; padding: 7px; cursor: pointer; color: var(--np-text); transition: transform 0.14s ease, border-color 0.14s ease; }
+.nova-theme { position: relative; text-align: left; background: var(--np-surface2); border: 2px solid transparent; border-radius: 11px; padding: 7px; cursor: pointer; color: var(--np-text); transition: transform 0.14s ease, border-color 0.14s ease; }
 .nova-theme:hover { transform: translateY(-2px); }
 .nova-theme.active { border-color: var(--np-accent); }
+.nova-theme-del { position: absolute; top: -6px; right: -6px; width: 18px; height: 18px; border-radius: 50%; background: #e0573e; color: #fff; font-size: 13px; line-height: 18px; text-align: center; display: none; z-index: 2; }
+.nova-theme:hover .nova-theme-del { display: block; }
+.nova-save { float: right; background: none; border: none; color: var(--np-accent); cursor: pointer; font: inherit; font-size: 11px; text-transform: none; letter-spacing: 0; padding: 0; }
+.nova-save:hover { text-decoration: underline; }
 .nova-theme-pv { display: flex; height: 26px; border-radius: 6px; overflow: hidden; margin-bottom: 6px; }
 .nova-theme-pv i { flex: 1; }
 .nova-theme-name { font-size: 12px; font-weight: 600; }

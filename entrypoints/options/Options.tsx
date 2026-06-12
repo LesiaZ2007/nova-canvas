@@ -1,6 +1,5 @@
 import { useSettings } from '@/lib/useSettings';
-import { DEFAULT_SETTINGS } from '@/lib/settings';
-import { THEMES } from '@/lib/themes';
+import { DEFAULT_SETTINGS, allThemes } from '@/lib/settings';
 import { FONT_STACKS, type ThemeTokens } from '@/lib/tokens';
 import { Wordmark } from '@/components/Wordmark';
 
@@ -10,8 +9,13 @@ const CARDS: ThemeTokens['cardStyle'][] = ['flat', 'outlined', 'elevated', 'glas
 const SIDEBARS: ThemeTokens['sidebarStyle'][] = ['pills', 'plain', 'icons-only'];
 
 export function Options() {
-  const { settings, tokens, patch, setToken, loaded } = useSettings();
+  const { settings, tokens, patch, setToken, saveTheme, deleteTheme, loaded } = useSettings();
   if (!loaded) return null;
+  const themes = allThemes(settings);
+  const onSave = () => {
+    const name = window.prompt('Name this theme:', 'My theme');
+    if (name) saveTheme(name);
+  };
 
   return (
     <div style={{ maxWidth: 760, margin: '0 auto', padding: '40px 22px 80px' }}>
@@ -23,18 +27,31 @@ export function Options() {
       </p>
 
       {/* ---------- Theme gallery ---------- */}
-      <Section title="Themes" subtitle="Start from a curated theme, then customize anything below.">
+      <Section title="Themes" subtitle="Start from a curated theme, customize below, then save your own.">
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 10 }}>
+          <a className="nv-link" onClick={onSave}>＋ Save current as theme</a>
+        </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(150px,1fr))', gap: 12 }}>
-          {THEMES.map((th) => {
+          {themes.map((th) => {
             const active = settings.themeId === th.id;
+            const isCustom = th.id.startsWith('custom-');
             return (
               <button
                 key={th.id}
                 onClick={() => patch({ themeId: th.id, overrides: {} })}
                 title={th.blurb}
                 className="nv-theme-card"
-                style={{ border: active ? '2px solid var(--nv-accent)' : '2px solid var(--nv-border)' }}
+                style={{ position: 'relative', border: active ? '2px solid var(--nv-accent)' : '2px solid var(--nv-border)' }}
               >
+                {isCustom && (
+                  <span
+                    onClick={(e) => { e.stopPropagation(); deleteTheme(th.id); }}
+                    title="Delete theme"
+                    style={{ position: 'absolute', top: -8, right: -8, width: 20, height: 20, borderRadius: '50%', background: '#e0573e', color: '#fff', fontSize: 14, lineHeight: '20px', textAlign: 'center' }}
+                  >
+                    ×
+                  </span>
+                )}
                 <div className="nv-theme-preview" style={{ background: th.tokens.bg }}>
                   <span style={{ background: th.tokens.sidebarBg }} />
                   <div>

@@ -42,6 +42,28 @@ export function useSettings() {
     });
   }, []);
 
+  /** Snapshot the current look (active theme + overrides) as a reusable saved theme. */
+  const saveTheme = useCallback((name: string, emoji = '⭐') => {
+    setSettings((cur) => {
+      const tokens = resolveTokens(cur);
+      const id = `custom-${Date.now().toString(36)}`;
+      const preset = { id, name: name.trim() || 'My theme', emoji, blurb: 'Saved theme', tokens };
+      const next = { ...cur, customThemes: [...(cur.customThemes ?? []), preset], themeId: id, overrides: {} };
+      settingsStore.setValue(next);
+      return next;
+    });
+  }, []);
+
+  const deleteTheme = useCallback((id: string) => {
+    setSettings((cur) => {
+      const customThemes = (cur.customThemes ?? []).filter((p) => p.id !== id);
+      const themeId = cur.themeId === id ? 'midnight' : cur.themeId;
+      const next = { ...cur, customThemes, themeId };
+      settingsStore.setValue(next);
+      return next;
+    });
+  }, []);
+
   const tokens = resolveTokens(settings);
-  return { settings, tokens, patch, setToken, loaded };
+  return { settings, tokens, patch, setToken, saveTheme, deleteTheme, loaded };
 }

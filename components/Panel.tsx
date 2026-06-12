@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useSettings } from '@/lib/useSettings';
-import { THEMES } from '@/lib/themes';
+import { allThemes } from '@/lib/settings';
 import type { ThemeTokens } from '@/lib/tokens';
 
 const KEY_COLORS: [keyof ThemeTokens, string][] = [
@@ -24,9 +24,15 @@ const FLAGS: [keyof ThemeTokens, string][] = [
 const hexOnly = (v: string) => (/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(v) ? v : '#888888');
 
 export function Panel() {
-  const { settings, tokens, patch, setToken, loaded } = useSettings();
+  const { settings, tokens, patch, setToken, saveTheme, deleteTheme, loaded } = useSettings();
   const [open, setOpen] = useState(false);
   if (!loaded) return null;
+
+  const themes = allThemes(settings);
+  const onSave = () => {
+    const name = window.prompt('Name this theme:', 'My theme');
+    if (name) saveTheme(name);
+  };
 
   const rootStyle = {
     '--np-accent': tokens.accent,
@@ -58,23 +64,35 @@ export function Panel() {
             <input type="checkbox" className="nova-switch" checked={settings.enabled} onChange={(e) => patch({ enabled: e.target.checked })} />
           </div>
 
-          <h4 className="nova-h4">Theme</h4>
+          <h4 className="nova-h4">Theme <button className="nova-save" onClick={onSave}>＋ Save current</button></h4>
           <div className="nova-themes">
-            {THEMES.map((th) => (
-              <button
-                key={th.id}
-                className={'nova-theme' + (settings.themeId === th.id ? ' active' : '')}
-                title={th.blurb}
-                onClick={() => patch({ themeId: th.id, overrides: {} })}
-              >
-                <span className="nova-theme-pv">
-                  <i style={{ background: th.tokens.sidebarBg }} />
-                  <i style={{ background: th.tokens.accent }} />
-                  <i style={{ background: th.tokens.surface }} />
-                </span>
-                <span className="nova-theme-name">{th.emoji} {th.name}</span>
-              </button>
-            ))}
+            {themes.map((th) => {
+              const isCustom = th.id.startsWith('custom-');
+              return (
+                <button
+                  key={th.id}
+                  className={'nova-theme' + (settings.themeId === th.id ? ' active' : '')}
+                  title={th.blurb}
+                  onClick={() => patch({ themeId: th.id, overrides: {} })}
+                >
+                  {isCustom && (
+                    <span
+                      className="nova-theme-del"
+                      title="Delete theme"
+                      onClick={(e) => { e.stopPropagation(); deleteTheme(th.id); }}
+                    >
+                      ×
+                    </span>
+                  )}
+                  <span className="nova-theme-pv">
+                    <i style={{ background: th.tokens.sidebarBg }} />
+                    <i style={{ background: th.tokens.accent }} />
+                    <i style={{ background: th.tokens.surface }} />
+                  </span>
+                  <span className="nova-theme-name">{th.emoji} {th.name}</span>
+                </button>
+              );
+            })}
           </div>
 
           <h4 className="nova-h4">Colors <small>(type a hex code)</small></h4>
