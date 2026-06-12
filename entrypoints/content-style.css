@@ -1,19 +1,18 @@
 /*
- * Nova Canvas — restyle + full reskin of Canvas (Instructure) LMS.
- *
- * Selectors target the real Instructure DOM (verified against a live dashboard):
- *   #header.ic-app-header              global nav (default ~84px icon rail)
- *     .ic-app-header__main-navigation  > ul#menu.ic-app-header__menu-list
- *       li.ic-app-header__menu-list-item (.--active when current)
- *         a.ic-app-header__menu-list-link > .menu-item-icon-container + .menu-item__text
- *   #wrapper.ic-Layout-wrapper         content column (margin-left = nav width)
- *   #content / #not_right_side         main content
- *   #DashboardCard_Container .ic-DashboardCard   course cards
- *   #right-side  .Sidebar__TodoListContainer / .events_list.recent_feedback
- *
- * Everything is gated on html[data-nova="on"]; structural changes also need
- * [data-nova-reskin]. Colors/shape come from CSS vars set by the content script.
+ * Nova Canvas — bold reskin of Canvas (Instructure) LMS.
+ * Verified against the live GT dashboard DOM. Gated on html[data-nova="on"];
+ * structural changes also need [data-nova-reskin]. Flags toggle flair:
+ *   [data-nova-sidebar-gradient] [data-nova-glow] [data-nova-anim] [data-nova-tint]
+ * All colors/shape come from CSS vars set by the content script.
  */
+
+/* ============================ tokens fallback ============================ */
+html[data-nova='on'] {
+  --nova-shadow: 0 6px 20px rgba(0, 0, 0, 0.14);
+  --nova-shadow-lg: 0 18px 44px rgba(0, 0, 0, 0.26);
+  --nova-glow: 0 0 0 1px color-mix(in srgb, var(--nova-accent) 50%, transparent),
+    0 8px 26px color-mix(in srgb, var(--nova-accent) 40%, transparent);
+}
 
 /* ============================ page background ============================ */
 html[data-nova='on'] body {
@@ -33,61 +32,76 @@ html[data-nova='on'] #right-side {
   background: transparent !important;
 }
 
-/* background patterns live on the page behind the content */
 html[data-nova='on'][data-nova-bg='grid'] body {
   background-image:
     linear-gradient(var(--nova-pattern-color) 1px, transparent 1px),
     linear-gradient(90deg, var(--nova-pattern-color) 1px, transparent 1px) !important;
   background-size: 26px 26px !important;
+  background-attachment: fixed !important;
 }
 html[data-nova='on'][data-nova-bg='dots'] body {
   background-image: radial-gradient(var(--nova-pattern-color) 1.5px, transparent 1.5px) !important;
   background-size: 24px 24px !important;
+  background-attachment: fixed !important;
 }
 html[data-nova='on'][data-nova-bg='ruled'] body {
   background-image: linear-gradient(var(--nova-pattern-color) 1px, transparent 1px) !important;
   background-size: 100% 30px !important;
 }
+/* notebook paper — ruled lines + a red margin rule down the left */
+html[data-nova='on'][data-nova-bg='paper'] body {
+  background-image:
+    linear-gradient(90deg, transparent 70px, rgba(200, 60, 50, 0.35) 70px, rgba(200, 60, 50, 0.35) 72px, transparent 72px),
+    linear-gradient(var(--nova-pattern-color) 1px, transparent 1px) !important;
+  background-size: 100% 100%, 100% 30px !important;
+  background-attachment: fixed !important;
+}
 html[data-nova='on'][data-nova-bg='gradient'] body {
-  background-image: linear-gradient(160deg, var(--nova-bg), var(--nova-surface-2)) !important;
+  background-image: radial-gradient(1200px 600px at 80% -10%, var(--nova-bg-2), transparent 60%),
+    linear-gradient(160deg, var(--nova-bg), var(--nova-bg-2)) !important;
   background-attachment: fixed !important;
 }
 
-/* ============================ global navigation (recolor — always) ======== */
+/* themed scrollbars */
+html[data-nova='on'] ::-webkit-scrollbar { width: 12px; height: 12px; }
+html[data-nova='on'] ::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--nova-accent) 55%, var(--nova-border));
+  border-radius: 10px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+
+/* ============================ global navigation ============================ */
 html[data-nova='on'] #header.ic-app-header {
   background: var(--nova-sidebar-bg) !important;
   border: none !important;
+  z-index: 90 !important;
 }
-html[data-nova='on'] .ic-app-header__menu-list-link {
-  color: var(--nova-sidebar-text) !important;
+html[data-nova='on'][data-nova-sidebar-gradient] #header.ic-app-header {
+  background: linear-gradient(180deg, var(--nova-sidebar-bg), var(--nova-sidebar-bg-2)) !important;
 }
+html[data-nova='on'] .ic-app-header__menu-list-link { color: var(--nova-sidebar-text) !important; }
 html[data-nova='on'] .ic-app-header__menu-list-link .ic-icon-svg,
-html[data-nova='on'] .ic-app-header__menu-list-link svg path {
-  fill: currentColor !important;
-}
+html[data-nova='on'] .ic-app-header__menu-list-link svg path { fill: currentColor !important; }
 html[data-nova='on'] .ic-app-header__menu-list-item--active .ic-app-header__menu-list-link {
   background: var(--nova-sidebar-active-bg) !important;
   color: var(--nova-sidebar-active-text) !important;
   border-radius: var(--nova-radius) !important;
 }
+html[data-nova='on'][data-nova-glow] .ic-app-header__menu-list-item--active .ic-app-header__menu-list-link {
+  box-shadow: var(--nova-glow) !important;
+}
 
-/* ---- full reskin: widen the rail into a labeled sidebar (PrettyCanvas-style) ---- */
-html[data-nova='on'][data-nova-reskin] body.primary-nav-expanded #header.ic-app-header {
-  width: 248px !important;
-}
-html[data-nova='on'][data-nova-reskin] body.primary-nav-expanded .ic-Layout-wrapper {
-  margin-left: 248px !important;
-}
-html[data-nova='on'][data-nova-reskin] .ic-app-header__main-navigation {
-  padding: 14px 10px !important;
-}
-html[data-nova='on'][data-nova-reskin] .ic-app-header__logomark-container {
-  margin-bottom: 10px !important;
-}
-html[data-nova='on'][data-nova-reskin] .ic-app-header__menu-list-item {
-  margin: 3px 0 !important;
-  width: 100% !important;
-}
+/* keep Canvas's slide-out trays (Courses/Account flyouts) above the wider rail */
+html[data-nova='on'] #nav-tray-portal { z-index: 100000 !important; }
+html[data-nova='on'] #global_nav_tray_container { z-index: 100000 !important; }
+
+/* ---- full reskin: widen the rail into a labeled sidebar ---- */
+html[data-nova='on'][data-nova-reskin] body.primary-nav-expanded #header.ic-app-header { width: 252px !important; }
+html[data-nova='on'][data-nova-reskin] body.primary-nav-expanded .ic-Layout-wrapper { margin-left: 252px !important; }
+html[data-nova='on'][data-nova-reskin] .ic-app-header__main-navigation { padding: 16px 12px !important; }
+html[data-nova='on'][data-nova-reskin] .ic-app-header__logomark-container { margin-bottom: 12px !important; padding: 0 6px !important; }
+html[data-nova='on'][data-nova-reskin] .ic-app-header__menu-list-item { margin: 3px 0 !important; width: 100% !important; }
 html[data-nova='on'][data-nova-reskin] .ic-app-header__menu-list-link {
   display: flex !important;
   flex-direction: row !important;
@@ -98,111 +112,87 @@ html[data-nova='on'][data-nova-reskin] .ic-app-header__menu-list-link {
   min-height: 0 !important;
   padding: 11px 14px !important;
   border-radius: var(--nova-radius) !important;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: background 0.18s ease, color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
 }
 html[data-nova='on'][data-nova-reskin] .ic-app-header__menu-list-link .menu-item-icon-container {
-  width: 24px !important;
-  height: 24px !important;
-  min-width: 24px !important;
-  margin: 0 !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
+  width: 24px !important; height: 24px !important; min-width: 24px !important; margin: 0 !important;
+  display: flex !important; align-items: center !important; justify-content: center !important;
 }
 html[data-nova='on'][data-nova-reskin] .ic-app-header__menu-list-link .ic-icon-svg,
 html[data-nova='on'][data-nova-reskin] .ic-app-header__menu-list-link .menu-item__icon,
-html[data-nova='on'][data-nova-reskin] .ic-app-header__menu-list-link img {
-  width: 22px !important;
-  height: 22px !important;
-}
+html[data-nova='on'][data-nova-reskin] .ic-app-header__menu-list-link img { width: 22px !important; height: 22px !important; }
 html[data-nova='on'][data-nova-reskin] .ic-app-header__menu-list-link .menu-item__text {
-  font-size: 14px !important;
-  font-weight: 500 !important;
-  margin-top: 0 !important;
-  line-height: 1.1 !important;
-  text-align: left !important;
-  text-transform: none !important;
-  letter-spacing: 0 !important;
+  font-size: 14px !important; font-weight: 500 !important; margin-top: 0 !important;
+  line-height: 1.1 !important; text-align: left !important; text-transform: none !important; letter-spacing: 0 !important;
 }
 html[data-nova='on'][data-nova-reskin] .ic-app-header__menu-list-link:hover {
-  background: color-mix(in srgb, var(--nova-sidebar-active-bg) 32%, transparent) !important;
+  background: color-mix(in srgb, var(--nova-sidebar-active-bg) 30%, transparent) !important;
   color: #fff !important;
+  transform: translateX(3px);
 }
-/* icons-only style hides labels and narrows the rail back down */
-html[data-nova='on'][data-nova-reskin][data-nova-sidebar='icons-only'] body.primary-nav-expanded #header.ic-app-header {
-  width: 84px !important;
-}
-html[data-nova='on'][data-nova-reskin][data-nova-sidebar='icons-only'] body.primary-nav-expanded .ic-Layout-wrapper {
-  margin-left: 84px !important;
-}
-html[data-nova='on'][data-nova-reskin][data-nova-sidebar='icons-only'] .menu-item__text {
-  display: none !important;
-}
+html[data-nova='on'][data-nova-reskin][data-nova-sidebar='icons-only'] body.primary-nav-expanded #header.ic-app-header { width: 84px !important; }
+html[data-nova='on'][data-nova-reskin][data-nova-sidebar='icons-only'] body.primary-nav-expanded .ic-Layout-wrapper { margin-left: 84px !important; }
+html[data-nova='on'][data-nova-reskin][data-nova-sidebar='icons-only'] .menu-item__text { display: none !important; }
 
-/* ============================ dashboard header ============================ */
-html[data-nova='on'] .ic-Dashboard-header {
-  background: transparent !important;
-  padding-bottom: 6px !important;
-}
-html[data-nova='on'] .ic-Dashboard-header__layout,
-html[data-nova='on'] .ic-Dashboard-header [class*='view-heading'] span {
-  color: var(--nova-text) !important;
+/* ============================ headings ============================ */
+html[data-nova='on'] .ic-Dashboard-header { background: transparent !important; padding-bottom: 4px !important; }
+html[data-nova='on'] .ic-Dashboard-header [class*='view-heading'] span,
+html[data-nova='on'] #content h1.screenreader-only + * h1,
+html[data-nova='on'] .ic-Dashboard-header__layout {
+  color: var(--nova-heading) !important;
   font-family: var(--nova-heading-font) !important;
+}
+html[data-nova='on'][data-nova-reskin] .ic-Dashboard-header [class*='view-heading'] {
+  position: relative;
+  font-weight: 800 !important;
 }
 
 /* ============================ course cards ============================ */
 html[data-nova='on'] .ic-DashboardCard__box,
-html[data-nova='on'] .ic-DashboardCard__box__container {
-  background: transparent !important;
-}
+html[data-nova='on'] .ic-DashboardCard__box__container { background: transparent !important; }
 html[data-nova='on'] .ic-DashboardCard {
+  position: relative !important;
   background: var(--nova-surface) !important;
   border-radius: var(--nova-radius) !important;
   overflow: hidden !important;
-  transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+  transition: transform 0.2s cubic-bezier(.2,.7,.3,1), box-shadow 0.2s ease !important;
 }
-html[data-nova='on'][data-nova-card='elevated'] .ic-DashboardCard {
-  border: none !important;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12) !important;
-}
-html[data-nova='on'][data-nova-card='outlined'] .ic-DashboardCard {
-  border: 1px solid var(--nova-border) !important;
-  box-shadow: none !important;
-}
-html[data-nova='on'][data-nova-card='flat'] .ic-DashboardCard {
-  border: 1px solid var(--nova-border) !important;
-}
+html[data-nova='on'][data-nova-card='elevated'] .ic-DashboardCard { border: none !important; box-shadow: var(--nova-shadow) !important; }
+html[data-nova='on'][data-nova-card='outlined'] .ic-DashboardCard { border: var(--nova-border-width) solid var(--nova-border) !important; box-shadow: none !important; }
+html[data-nova='on'][data-nova-card='flat'] .ic-DashboardCard { border: 1px solid var(--nova-border) !important; }
 html[data-nova='on'][data-nova-card='glass'] .ic-DashboardCard {
-  border: 1px solid var(--nova-border) !important;
-  background: color-mix(in srgb, var(--nova-surface) 82%, transparent) !important;
-  backdrop-filter: blur(8px) !important;
+  border: 1px solid color-mix(in srgb, var(--nova-border) 70%, transparent) !important;
+  background: color-mix(in srgb, var(--nova-surface) 72%, transparent) !important;
+  backdrop-filter: blur(10px) saturate(1.2) !important;
+  box-shadow: var(--nova-shadow) !important;
 }
-html[data-nova='on'] .ic-DashboardCard:hover {
-  transform: translateY(-3px) !important;
-  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.18) !important;
+/* gradient-border cards via a masked ::after ring */
+html[data-nova='on'][data-nova-card='gradient-border'] .ic-DashboardCard { border: none !important; box-shadow: var(--nova-shadow) !important; }
+html[data-nova='on'][data-nova-card='gradient-border'] .ic-DashboardCard::after {
+  content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 2px; pointer-events: none;
+  background: linear-gradient(135deg, var(--nova-accent), var(--nova-accent-2)) !important;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  z-index: 3;
 }
-html[data-nova='on'] .ic-DashboardCard__header_content {
-  background: var(--nova-surface) !important;
-}
-html[data-nova='on'] .ic-DashboardCard__header-subtitle,
-html[data-nova='on'] .ic-DashboardCard__header-term {
-  color: var(--nova-text-muted) !important;
-}
-/* keep the colorful per-course title in light themes; force readable in dark */
-html[data-nova='on'][data-nova-scheme='dark'] .ic-DashboardCard__header-title span,
-html[data-nova='on'][data-nova-scheme='dark'] .ic-DashboardCard__header-subtitle {
-  color: var(--nova-text) !important;
-}
-html[data-nova='on'] .ic-DashboardCard__action-container {
-  border-top: 1px solid var(--nova-border) !important;
-}
-html[data-nova='on'] .ic-DashboardCard__action .ic-DashboardCard__action-layout,
-html[data-nova='on'] .ic-DashboardCard__action svg {
-  color: var(--nova-accent) !important;
-  fill: var(--nova-accent) !important;
-}
+html[data-nova='on'] .ic-DashboardCard:hover { transform: translateY(-4px) scale(1.012) !important; box-shadow: var(--nova-shadow-lg) !important; }
+html[data-nova='on'][data-nova-glow] .ic-DashboardCard:hover { box-shadow: var(--nova-glow), var(--nova-shadow-lg) !important; }
 
-/* ============================ right sidebar (To Do / feedback) ============= */
+html[data-nova='on'] .ic-DashboardCard__header_content { background: var(--nova-surface) !important; }
+html[data-nova='on'][data-nova-card='glass'] .ic-DashboardCard__header_content { background: transparent !important; }
+html[data-nova='on'] .ic-DashboardCard__header-subtitle,
+html[data-nova='on'] .ic-DashboardCard__header-term { color: var(--nova-text-muted) !important; }
+html[data-nova='on'][data-nova-scheme='dark'] .ic-DashboardCard__header-title span,
+html[data-nova='on'][data-nova-scheme='dark'] .ic-DashboardCard__header-title { color: var(--nova-text) !important; }
+/* tint course hero images with the accent */
+html[data-nova='on'][data-nova-tint] .ic-DashboardCard__header_hero {
+  background-color: var(--nova-accent) !important; opacity: 0.5 !important; mix-blend-mode: multiply !important;
+}
+html[data-nova='on'] .ic-DashboardCard__action-container { border-top: 1px solid var(--nova-border) !important; }
+html[data-nova='on'] .ic-DashboardCard__action .ic-DashboardCard__action-layout,
+html[data-nova='on'] .ic-DashboardCard__action svg { color: var(--nova-accent) !important; fill: var(--nova-accent) !important; }
+
+/* ============================ right rail ============================ */
 html[data-nova='on'][data-nova-reskin] .Sidebar__TodoListContainer,
 html[data-nova='on'][data-nova-reskin] .events_list.recent_feedback {
   background: var(--nova-surface) !important;
@@ -210,37 +200,65 @@ html[data-nova='on'][data-nova-reskin] .events_list.recent_feedback {
   border-radius: var(--nova-radius) !important;
   padding: 16px !important;
   margin-bottom: var(--nova-gap) !important;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06) !important;
+  box-shadow: var(--nova-shadow) !important;
 }
 html[data-nova='on'] .todo-list-header,
 html[data-nova='on'] .events_list.recent_feedback h2,
-html[data-nova='on'] .recent_feedback_title {
-  color: var(--nova-text) !important;
-}
-html[data-nova='on'] .event-details__context,
-html[data-nova='on'] .Sidebar__TodoListContainer [class*='text'] {
-  color: var(--nova-text-muted) !important;
-}
-html[data-nova='on'] .recent_feedback_icon .icon-check {
-  color: var(--nova-accent) !important;
-}
+html[data-nova='on'] .recent_feedback_title { color: var(--nova-text) !important; }
+html[data-nova='on'] .event-details__context { color: var(--nova-text-muted) !important; }
+html[data-nova='on'] .recent_feedback_icon .icon-check { color: var(--nova-accent) !important; }
+html[data-nova='on'] .recent_feedback_icon { transition: transform 0.15s ease; }
+html[data-nova='on'] .recent_feedback_icon:hover { transform: translateX(3px); }
 
-/* ============================ buttons / accent controls ==================== */
+/* ============================ buttons ============================ */
 html[data-nova='on'] .btn-primary,
 html[data-nova='on'] .Button--primary,
 html[data-nova='on'] .button-sidebar-wide {
-  background-color: var(--nova-accent) !important;
-  border-color: var(--nova-accent) !important;
-  color: #fff !important;
+  background: linear-gradient(135deg, var(--nova-accent), color-mix(in srgb, var(--nova-accent) 70%, var(--nova-accent-2))) !important;
+  border-color: transparent !important; color: #fff !important;
   border-radius: calc(var(--nova-radius) - 4px) !important;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
 }
 html[data-nova='on'] .btn-primary:hover,
 html[data-nova='on'] .Button--primary:hover,
-html[data-nova='on'] .button-sidebar-wide:hover {
-  filter: brightness(0.93) !important;
-}
+html[data-nova='on'] .button-sidebar-wide:hover { transform: translateY(-1px); filter: brightness(1.06); }
+html[data-nova='on'][data-nova-glow] .button-sidebar-wide:hover { box-shadow: var(--nova-glow) !important; }
+html[data-nova='on'] #content a:not(.btn):not([class*='Button']):not(.ic-DashboardCard__link) { color: var(--nova-accent) !important; }
 
-/* general links (not nav / buttons) */
-html[data-nova='on'] #content a:not(.btn):not([class*='Button']):not(.ic-DashboardCard__link) {
-  color: var(--nova-accent) !important;
+/* ============================ calendar (/calendar) ============================ */
+html[data-nova='on'] .calendar .fc-event,
+html[data-nova='on'] .fc-event {
+  border: none !important;
+  border-radius: 8px !important;
+  padding: 2px 6px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18) !important;
+  transition: transform 0.12s ease;
+}
+html[data-nova='on'] .fc-event:hover { transform: scale(1.02); }
+html[data-nova='on'] .fc-today,
+html[data-nova='on'] .fc-day.fc-today,
+html[data-nova='on'] .fc-state-highlight { background: color-mix(in srgb, var(--nova-accent) 14%, transparent) !important; }
+html[data-nova='on'] .fc-button,
+html[data-nova='on'] .calendar .fc-button {
+  background: var(--nova-surface) !important; color: var(--nova-text) !important;
+  border: 1px solid var(--nova-border) !important; border-radius: 8px !important; text-shadow: none !important;
+}
+html[data-nova='on'] .fc-button.fc-state-active { background: var(--nova-accent) !important; color: #fff !important; }
+html[data-nova='on'] .fc-widget-header,
+html[data-nova='on'] .fc-widget-content { border-color: var(--nova-border) !important; }
+html[data-nova='on'] #calendar-app,
+html[data-nova='on'] .calendar-wrapper { background: transparent !important; }
+html[data-nova='on'] #minical .fc-day.fc-today { background: var(--nova-accent) !important; color: #fff !important; }
+
+/* ============================ animations ============================ */
+@keyframes novaFadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes novaFadeIn { from { opacity: 0; } to { opacity: 1; } }
+html[data-nova='on'][data-nova-anim] .ic-DashboardCard { animation: novaFadeUp 0.45s cubic-bezier(.2,.7,.3,1) both; }
+html[data-nova='on'][data-nova-anim] .ic-DashboardCard__box__container:nth-child(2) .ic-DashboardCard { animation-delay: 0.05s; }
+html[data-nova='on'][data-nova-anim] .ic-DashboardCard__box__container:nth-child(3) .ic-DashboardCard { animation-delay: 0.1s; }
+html[data-nova='on'][data-nova-anim] .ic-DashboardCard__box__container:nth-child(4) .ic-DashboardCard { animation-delay: 0.15s; }
+html[data-nova='on'][data-nova-anim] .Sidebar__TodoListContainer,
+html[data-nova='on'][data-nova-anim] .events_list.recent_feedback { animation: novaFadeIn 0.5s ease both; }
+@media (prefers-reduced-motion: reduce) {
+  html[data-nova='on'] * { animation: none !important; }
 }

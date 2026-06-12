@@ -1,5 +1,5 @@
 import { getSettings, settingsStore, resolveTokens, type NovaSettings } from '@/lib/settings';
-import { tokensToVars, tokensToAttrs } from '@/lib/tokens';
+import { tokensToVars, tokensToAttrs, tokensToFlags } from '@/lib/tokens';
 import './content-style.css';
 
 // content-style.css is bundled into the manifest's content_scripts.css by WXT,
@@ -30,8 +30,10 @@ function apply(settings: NovaSettings | undefined) {
 
   const tokens = resolveTokens(settings);
   root.setAttribute('data-nova', 'on');
+  root.setAttribute('data-nova-theme-id', settings.themeId);
   root.toggleAttribute('data-nova-reskin', settings.fullReskin);
   for (const [k, v] of Object.entries(tokensToAttrs(tokens))) root.setAttribute(k, v);
+  for (const [k, on] of Object.entries(tokensToFlags(tokens))) root.toggleAttribute(k, on);
   for (const [k, v] of Object.entries(tokensToVars(tokens))) root.style.setProperty(k, v);
 
   // Custom CSS injected last so it always wins.

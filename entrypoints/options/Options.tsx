@@ -5,8 +5,8 @@ import { FONT_STACKS, type ThemeTokens } from '@/lib/tokens';
 import { Wordmark } from '@/components/Wordmark';
 
 const FONTS = Object.keys(FONT_STACKS);
-const BACKGROUNDS: ThemeTokens['background'][] = ['none', 'grid', 'ruled', 'dots', 'gradient'];
-const CARDS: ThemeTokens['cardStyle'][] = ['flat', 'outlined', 'elevated', 'glass'];
+const BACKGROUNDS: ThemeTokens['background'][] = ['none', 'grid', 'ruled', 'dots', 'gradient', 'paper'];
+const CARDS: ThemeTokens['cardStyle'][] = ['flat', 'outlined', 'elevated', 'glass', 'gradient-border'];
 const SIDEBARS: ThemeTokens['sidebarStyle'][] = ['pills', 'plain', 'icons-only'];
 
 export function Options() {
@@ -53,11 +53,19 @@ export function Options() {
       {/* ---------- Layout & structure ---------- */}
       <Section title="Layout & structure">
         <Toggle label="Enable Nova Canvas" hint="Master switch — off shows vanilla Canvas." checked={settings.enabled} onChange={(v) => patch({ enabled: v })} />
-        <Toggle label="Full reskin" hint="Rounded sidebar pills + rebuilt cards." checked={settings.fullReskin} onChange={(v) => patch({ fullReskin: v })} />
+        <Toggle label="Full reskin" hint="Widened labeled sidebar + rebuilt cards." checked={settings.fullReskin} onChange={(v) => patch({ fullReskin: v })} />
         <Seg label="Sidebar style" value={tokens.sidebarStyle} options={SIDEBARS} onChange={(v) => setToken('sidebarStyle', v)} />
         <Seg label="Card style" value={tokens.cardStyle} options={CARDS} onChange={(v) => setToken('cardStyle', v)} />
         <Seg label="Background" value={tokens.background} options={BACKGROUNDS} onChange={(v) => setToken('background', v)} />
         <Seg label="Density" value={tokens.density} options={['comfortable', 'compact']} onChange={(v) => setToken('density', v as ThemeTokens['density'])} />
+      </Section>
+
+      {/* ---------- Flair ---------- */}
+      <Section title="Flair" subtitle="The extras that make it pop.">
+        <Toggle label="Gradient sidebar" hint="Diagonal gradient instead of a flat sidebar." checked={tokens.sidebarGradient} onChange={(v) => setToken('sidebarGradient', v)} />
+        <Toggle label="Accent glow" hint="Glowing halo on active nav, cards, buttons." checked={tokens.glow} onChange={(v) => setToken('glow', v)} />
+        <Toggle label="Animations" hint="Entrance + hover motion (respects reduce-motion)." checked={tokens.animations} onChange={(v) => setToken('animations', v)} />
+        <Toggle label="Tint course images" hint="Wash course-card images in your accent." checked={tokens.cardImageTint} onChange={(v) => setToken('cardImageTint', v)} />
       </Section>
 
       {/* ---------- Colors ---------- */}
@@ -66,14 +74,18 @@ export function Options() {
           <Color label="Accent" value={tokens.accent} onChange={(v) => setToken('accent', v)} />
           <Color label="Secondary accent" value={tokens.accent2} onChange={(v) => setToken('accent2', v)} />
           <Color label="Page background" value={tokens.bg} onChange={(v) => setToken('bg', v)} />
+          <Color label="Background (gradient 2)" value={tokens.bg2} onChange={(v) => setToken('bg2', v)} />
           <Color label="Surface / cards" value={tokens.surface} onChange={(v) => setToken('surface', v)} />
           <Color label="Surface (alt)" value={tokens.surface2} onChange={(v) => setToken('surface2', v)} />
           <Color label="Border" value={tokens.border} onChange={(v) => setToken('border', v)} />
           <Color label="Text" value={tokens.text} onChange={(v) => setToken('text', v)} />
           <Color label="Muted text" value={tokens.textMuted} onChange={(v) => setToken('textMuted', v)} />
+          <Color label="Headings" value={tokens.heading} onChange={(v) => setToken('heading', v)} />
           <Color label="Sidebar background" value={tokens.sidebarBg} onChange={(v) => setToken('sidebarBg', v)} />
+          <Color label="Sidebar gradient end" value={tokens.sidebarBg2} onChange={(v) => setToken('sidebarBg2', v)} />
           <Color label="Sidebar text" value={tokens.sidebarText} onChange={(v) => setToken('sidebarText', v)} />
           <Color label="Sidebar active" value={tokens.sidebarActiveBg} onChange={(v) => setToken('sidebarActiveBg', v)} />
+          <Color label="Sidebar active text" value={tokens.sidebarActiveText} onChange={(v) => setToken('sidebarActiveText', v)} />
           <Color label="Pattern lines" value={tokens.patternColor.startsWith('#') ? tokens.patternColor : '#cccccc'} onChange={(v) => setToken('patternColor', v)} />
         </div>
       </Section>
@@ -85,6 +97,7 @@ export function Options() {
         <Range label="Font scale" min={0.85} max={1.3} step={0.05} value={tokens.fontScale} onChange={(v) => setToken('fontScale', v)} suffix="×" />
         <Range label="Corner radius" min={0} max={28} step={1} value={tokens.radius} onChange={(v) => setToken('radius', v)} suffix="px" />
         <Range label="Spacing" min={8} max={28} step={1} value={tokens.gap} onChange={(v) => setToken('gap', v)} suffix="px" />
+        <Range label="Border width" min={0} max={4} step={1} value={tokens.borderWidth} onChange={(v) => setToken('borderWidth', v)} suffix="px" />
       </Section>
 
       {/* ---------- Custom CSS ---------- */}
