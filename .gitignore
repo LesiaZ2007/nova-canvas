@@ -30,3 +30,8 @@ pnpm-debug.log*
 .vscode/*
 !.vscode/extensions.json
 .idea
+
+# internal planning / agent docs — keep local, not on GitHub
+AGENTS.md
+CLAUDE.md
+PLAN.md
