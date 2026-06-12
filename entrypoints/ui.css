@@ -1,0 +1,97 @@
+:root {
+  --nv-accent: #7c6dff;
+  --nv-accent-2: #22d3ee;
+  --nv-bg: #0c0e16;
+  --nv-bg-2: #141a2e;
+  --nv-surface: #171a26;
+  --nv-surface-2: #1e2333;
+  --nv-border: #2a3047;
+  --nv-text: #e9ebf5;
+  --nv-text-muted: #9aa1bd;
+  --nv-radius: 14px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  color: var(--nv-text);
+  background:
+    radial-gradient(900px 500px at 100% -10%, color-mix(in srgb, var(--nv-accent) 18%, transparent), transparent 55%),
+    radial-gradient(700px 500px at -10% 110%, color-mix(in srgb, var(--nv-accent-2) 12%, transparent), transparent 55%),
+    linear-gradient(160deg, var(--nv-bg), var(--nv-bg-2));
+  background-attachment: fixed;
+}
+
+/* Brand wordmark */
+.nv-brand { display: flex; align-items: center; gap: 8px; font-weight: 700; }
+
+.nv-card {
+  background: color-mix(in srgb, var(--nv-surface) 78%, transparent);
+  border: 1px solid var(--nv-border);
+  border-radius: var(--nv-radius);
+  padding: 14px 16px;
+  backdrop-filter: blur(10px);
+}
+
+.nv-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; }
+.nv-row + .nv-row { border-top: 1px solid var(--nv-border); }
+.nv-row label { font-size: 14px; }
+.nv-hint { color: var(--nv-text-muted); font-size: 12px; margin-top: 2px; }
+
+/* Toggle */
+.nv-switch {
+  appearance: none; width: 42px; height: 24px; border-radius: 999px;
+  background: var(--nv-border); position: relative; cursor: pointer;
+  transition: background 0.2s ease; flex: none;
+}
+.nv-switch:checked { background: linear-gradient(135deg, var(--nv-accent), var(--nv-accent-2)); }
+.nv-switch::after {
+  content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px;
+  border-radius: 50%; background: #fff; transition: transform 0.2s cubic-bezier(.2,.7,.3,1);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+.nv-switch:checked::after { transform: translateX(18px); }
+
+select, input[type='text'], textarea {
+  background: var(--nv-surface-2); color: var(--nv-text);
+  border: 1px solid var(--nv-border); border-radius: 8px; padding: 6px 8px; font: inherit;
+}
+input[type='color'] {
+  width: 36px; height: 30px; border: 1px solid var(--nv-border);
+  border-radius: 8px; background: none; cursor: pointer; padding: 2px;
+}
+input[type='range'] { accent-color: var(--nv-accent); }
+
+.nv-seg { display: inline-flex; border: 1px solid var(--nv-border); border-radius: 9px; overflow: hidden; }
+.nv-seg button {
+  background: var(--nv-surface-2); color: var(--nv-text-muted);
+  border: none; padding: 6px 12px; cursor: pointer; font: inherit; text-transform: capitalize;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.nv-seg button[aria-pressed='true'] { background: linear-gradient(135deg, var(--nv-accent), var(--nv-accent-2)); color: #fff; }
+
+a.nv-link { color: var(--nv-accent); font-size: 13px; cursor: pointer; text-decoration: none; }
+a.nv-link:hover { text-decoration: underline; }
+
+/* Primary call-to-action button */
+.nv-cta {
+  display: block; width: 100%; padding: 12px 16px; border: none; cursor: pointer;
+  border-radius: var(--nv-radius); font: inherit; font-weight: 600; color: #fff;
+  background: linear-gradient(135deg, var(--nv-accent), var(--nv-accent-2));
+  box-shadow: 0 8px 22px color-mix(in srgb, var(--nv-accent) 40%, transparent);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.nv-cta:hover { transform: translateY(-1px); box-shadow: 0 12px 28px color-mix(in srgb, var(--nv-accent) 50%, transparent); }
+
+/* Theme gallery cards */
+.nv-theme-card {
+  text-align: left; background: var(--nv-surface); border-radius: 12px; padding: 8px;
+  cursor: pointer; transition: transform 0.14s ease, box-shadow 0.14s ease;
+}
+.nv-theme-card:hover { transform: translateY(-3px); box-shadow: 0 10px 26px rgba(0,0,0,0.4); }
+.nv-theme-preview { display: flex; height: 52px; border-radius: 8px; overflow: hidden; border: 1px solid var(--nv-border); }
+.nv-theme-preview > span { width: 32%; }
+.nv-theme-preview > div { flex: 1; display: flex; flex-direction: column; }
+.nv-theme-preview > div > i { flex: 1; }

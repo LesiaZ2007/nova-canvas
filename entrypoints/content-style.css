@@ -1,0 +1,634 @@
+/*
+ * Nova Canvas — bold reskin of Canvas (Instructure) LMS.
+ * Verified against the live GT dashboard DOM. Gated on html[data-nova="on"];
+ * structural changes also need [data-nova-reskin]. Flags toggle flair:
+ *   [data-nova-sidebar-gradient] [data-nova-glow] [data-nova-anim] [data-nova-tint]
+ * All colors/shape come from CSS vars set by the content script.
+ */
+
+/* ============================ tokens fallback ============================ */
+html[data-nova='on'] {
+  --nova-shadow: 0 6px 20px rgba(0, 0, 0, 0.14);
+  --nova-shadow-lg: 0 18px 44px rgba(0, 0, 0, 0.26);
+  /* soft, tasteful halo — a thin ring + a low-opacity bloom, no muddy blur */
+  --nova-glow: 0 0 0 1px color-mix(in srgb, var(--nova-accent) 30%, transparent),
+    0 4px 18px color-mix(in srgb, var(--nova-accent) 22%, transparent);
+  /* clean sheen built from the accent itself (never mixed with a dark secondary) */
+  --nova-accent-grad: linear-gradient(135deg,
+    color-mix(in srgb, var(--nova-accent) 86%, #fff),
+    var(--nova-accent) 55%,
+    color-mix(in srgb, var(--nova-accent) 88%, #000));
+}
+
+/* ============================ page background ============================ */
+html[data-nova='on'] body {
+  background-color: var(--nova-bg) !important;
+  color: var(--nova-text) !important;
+  font-family: var(--nova-font) !important;
+}
+html[data-nova='on'] #application,
+html[data-nova='on'] .ic-Layout-wrapper,
+html[data-nova='on'] #main.ic-Layout-columns,
+html[data-nova='on'] #not_right_side,
+html[data-nova='on'] #content-wrapper,
+html[data-nova='on'] #content,
+html[data-nova='on'] #dashboard,
+html[data-nova='on'] #right-side-wrapper,
+html[data-nova='on'] #right-side {
+  background: transparent !important;
+}
+
+html[data-nova='on'][data-nova-bg='grid'] body {
+  background-image:
+    linear-gradient(var(--nova-pattern-color) 1px, transparent 1px),
+    linear-gradient(90deg, var(--nova-pattern-color) 1px, transparent 1px) !important;
+  background-size: 26px 26px !important;
+  background-attachment: fixed !important;
+}
+html[data-nova='on'][data-nova-bg='dots'] body {
+  background-image: radial-gradient(var(--nova-pattern-color) 1.5px, transparent 1.5px) !important;
+  background-size: 24px 24px !important;
+  background-attachment: fixed !important;
+}
+html[data-nova='on'][data-nova-bg='ruled'] body {
+  background-image: linear-gradient(var(--nova-pattern-color) 1px, transparent 1px) !important;
+  background-size: 100% 30px !important;
+}
+/* notebook paper — ruled lines + a red margin rule down the left */
+html[data-nova='on'][data-nova-bg='paper'] body {
+  background-image:
+    linear-gradient(90deg, transparent 70px, rgba(200, 60, 50, 0.35) 70px, rgba(200, 60, 50, 0.35) 72px, transparent 72px),
+    linear-gradient(var(--nova-pattern-color) 1px, transparent 1px) !important;
+  background-size: 100% 100%, 100% 30px !important;
+  background-attachment: fixed !important;
+}
+html[data-nova='on'][data-nova-bg='gradient'] body {
+  background-image: radial-gradient(1200px 600px at 80% -10%, var(--nova-bg-2), transparent 60%),
+    linear-gradient(160deg, var(--nova-bg), var(--nova-bg-2)) !important;
+  background-attachment: fixed !important;
+}
+
+/* themed scrollbars */
+html[data-nova='on'] ::-webkit-scrollbar { width: 12px; height: 12px; }
+html[data-nova='on'] ::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--nova-accent) 55%, var(--nova-border));
+  border-radius: 10px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+
+/* ============================ global navigation ============================ */
+html[data-nova='on'] #header.ic-app-header {
+  background: var(--nova-sidebar-bg) !important;
+  border: none !important;
+  z-index: 90 !important;
+}
+html[data-nova='on'][data-nova-sidebar-gradient] #header.ic-app-header {
+  background: linear-gradient(180deg, var(--nova-sidebar-bg), var(--nova-sidebar-bg-2)) !important;
+}
+html[data-nova='on'] .ic-app-header__menu-list-link { color: var(--nova-sidebar-text) !important; }
+html[data-nova='on'] .ic-app-header__menu-list-link .ic-icon-svg,
+html[data-nova='on'] .ic-app-header__menu-list-link svg path { fill: currentColor !important; }
+html[data-nova='on'] .ic-app-header__menu-list-item--active .ic-app-header__menu-list-link {
+  background: var(--nova-sidebar-active-bg) !important;
+  color: var(--nova-sidebar-active-text) !important;
+  border-radius: var(--nova-radius) !important;
+}
+/* active item gets a clean left indicator bar instead of a blurry halo */
+html[data-nova='on'][data-nova-reskin] .ic-app-header__menu-list-item--active .ic-app-header__menu-list-link {
+  position: relative;
+  box-shadow: inset 3px 0 0 color-mix(in srgb, var(--nova-sidebar-active-text) 65%, transparent) !important;
+}
+
+/* keep Canvas's slide-out trays (Courses/Account flyouts) above the wider rail */
+html[data-nova='on'] #nav-tray-portal { z-index: 100000 !important; }
+html[data-nova='on'] #global_nav_tray_container { z-index: 100000 !important; }
+
+/* ---- full reskin: widen the rail into a labeled sidebar ---- */
+html[data-nova='on'][data-nova-reskin] body.primary-nav-expanded #header.ic-app-header { width: 252px !important; }
+html[data-nova='on'][data-nova-reskin] body.primary-nav-expanded .ic-Layout-wrapper { margin-left: 252px !important; }
+html[data-nova='on'][data-nova-reskin] .ic-app-header__main-navigation { padding: 16px 12px !important; }
+html[data-nova='on'][data-nova-reskin] .ic-app-header__logomark-container { margin-bottom: 12px !important; padding: 0 6px !important; }
+html[data-nova='on'][data-nova-reskin] .ic-app-header__menu-list-item { margin: 3px 0 !important; width: 100% !important; }
+html[data-nova='on'][data-nova-reskin] .ic-app-header__menu-list-link {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 14px !important;
+  height: auto !important;
+  min-height: 0 !important;
+  padding: 11px 14px !important;
+  border-radius: var(--nova-radius) !important;
+  transition: background 0.18s ease, color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+}
+html[data-nova='on'][data-nova-reskin] .ic-app-header__menu-list-link .menu-item-icon-container {
+  width: 24px !important; height: 24px !important; min-width: 24px !important; margin: 0 !important;
+  display: flex !important; align-items: center !important; justify-content: center !important;
+}
+html[data-nova='on'][data-nova-reskin] .ic-app-header__menu-list-link .ic-icon-svg,
+html[data-nova='on'][data-nova-reskin] .ic-app-header__menu-list-link .menu-item__icon,
+html[data-nova='on'][data-nova-reskin] .ic-app-header__menu-list-link img { width: 22px !important; height: 22px !important; }
+html[data-nova='on'][data-nova-reskin] .ic-app-header__menu-list-link .menu-item__text {
+  font-size: 14px !important; font-weight: 500 !important; margin-top: 0 !important;
+  line-height: 1.1 !important; text-align: left !important; text-transform: none !important; letter-spacing: 0 !important;
+}
+html[data-nova='on'][data-nova-reskin] .ic-app-header__menu-list-link:hover {
+  background: color-mix(in srgb, var(--nova-sidebar-active-bg) 30%, transparent) !important;
+  color: #fff !important;
+  transform: translateX(3px);
+}
+html[data-nova='on'][data-nova-reskin][data-nova-sidebar='icons-only'] body.primary-nav-expanded #header.ic-app-header { width: 84px !important; }
+html[data-nova='on'][data-nova-reskin][data-nova-sidebar='icons-only'] body.primary-nav-expanded .ic-Layout-wrapper { margin-left: 84px !important; }
+html[data-nova='on'][data-nova-reskin][data-nova-sidebar='icons-only'] .menu-item__text { display: none !important; }
+
+/* ============================ headings ============================ */
+html[data-nova='on'] .ic-Dashboard-header { background: transparent !important; padding-bottom: 4px !important; }
+html[data-nova='on'] .ic-Dashboard-header [class*='view-heading'] span,
+html[data-nova='on'] #content h1.screenreader-only + * h1,
+html[data-nova='on'] .ic-Dashboard-header__layout {
+  color: var(--nova-heading) !important;
+  font-family: var(--nova-heading-font) !important;
+}
+html[data-nova='on'][data-nova-reskin] .ic-Dashboard-header [class*='view-heading'] {
+  position: relative;
+  font-weight: 800 !important;
+}
+
+/* ============================ course cards ============================ */
+html[data-nova='on'] .ic-DashboardCard__box,
+html[data-nova='on'] .ic-DashboardCard__box__container { background: transparent !important; }
+html[data-nova='on'] .ic-DashboardCard {
+  position: relative !important;
+  background: var(--nova-surface) !important;
+  border-radius: var(--nova-radius) !important;
+  overflow: hidden !important;
+  transition: transform 0.2s cubic-bezier(.2,.7,.3,1), box-shadow 0.2s ease !important;
+}
+html[data-nova='on'][data-nova-card='elevated'] .ic-DashboardCard { border: none !important; box-shadow: var(--nova-shadow) !important; }
+html[data-nova='on'][data-nova-card='outlined'] .ic-DashboardCard { border: var(--nova-border-width) solid var(--nova-border) !important; box-shadow: none !important; }
+html[data-nova='on'][data-nova-card='flat'] .ic-DashboardCard { border: 1px solid var(--nova-border) !important; }
+html[data-nova='on'][data-nova-card='glass'] .ic-DashboardCard {
+  border: 1px solid color-mix(in srgb, var(--nova-border) 70%, transparent) !important;
+  background: color-mix(in srgb, var(--nova-surface) 72%, transparent) !important;
+  backdrop-filter: blur(10px) saturate(1.2) !important;
+  box-shadow: var(--nova-shadow) !important;
+}
+/* gradient-border cards via a masked ::after ring */
+html[data-nova='on'][data-nova-card='gradient-border'] .ic-DashboardCard { border: none !important; box-shadow: var(--nova-shadow) !important; }
+html[data-nova='on'][data-nova-card='gradient-border'] .ic-DashboardCard::after {
+  content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 2px; pointer-events: none;
+  background: linear-gradient(135deg, var(--nova-accent), var(--nova-accent-2)) !important;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  z-index: 3;
+}
+html[data-nova='on'] .ic-DashboardCard:hover { transform: translateY(-4px) scale(1.012) !important; box-shadow: var(--nova-shadow-lg) !important; }
+html[data-nova='on'][data-nova-glow] .ic-DashboardCard:hover { box-shadow: var(--nova-glow), var(--nova-shadow-lg) !important; }
+
+html[data-nova='on'] .ic-DashboardCard__header_content { background: var(--nova-surface) !important; }
+html[data-nova='on'][data-nova-card='glass'] .ic-DashboardCard__header_content { background: transparent !important; }
+html[data-nova='on'] .ic-DashboardCard__header-subtitle,
+html[data-nova='on'] .ic-DashboardCard__header-term { color: var(--nova-text-muted) !important; }
+html[data-nova='on'][data-nova-scheme='dark'] .ic-DashboardCard__header-title span,
+html[data-nova='on'][data-nova-scheme='dark'] .ic-DashboardCard__header-title { color: var(--nova-text) !important; }
+/* tint course hero images with the accent */
+html[data-nova='on'][data-nova-tint] .ic-DashboardCard__header_hero {
+  background-color: var(--nova-accent) !important; opacity: 0.5 !important; mix-blend-mode: multiply !important;
+}
+html[data-nova='on'] .ic-DashboardCard__action-container { border-top: 1px solid var(--nova-border) !important; }
+html[data-nova='on'] .ic-DashboardCard__action .ic-DashboardCard__action-layout,
+html[data-nova='on'] .ic-DashboardCard__action svg { color: var(--nova-accent) !important; fill: var(--nova-accent) !important; }
+
+/* ============================ right rail ============================ */
+html[data-nova='on'][data-nova-reskin] .Sidebar__TodoListContainer,
+html[data-nova='on'][data-nova-reskin] .events_list.recent_feedback {
+  background: var(--nova-surface) !important;
+  border: 1px solid var(--nova-border) !important;
+  border-radius: var(--nova-radius) !important;
+  padding: 16px !important;
+  margin-bottom: var(--nova-gap) !important;
+  box-shadow: var(--nova-shadow) !important;
+}
+html[data-nova='on'] .todo-list-header,
+html[data-nova='on'] .events_list.recent_feedback h2,
+html[data-nova='on'] .recent_feedback_title { color: var(--nova-text) !important; }
+html[data-nova='on'] .event-details__context { color: var(--nova-text-muted) !important; }
+html[data-nova='on'] .recent_feedback_icon .icon-check { color: var(--nova-accent) !important; }
+html[data-nova='on'] .recent_feedback_icon { transition: transform 0.15s ease; }
+html[data-nova='on'] .recent_feedback_icon:hover { transform: translateX(3px); }
+
+/* ============================ buttons ============================ */
+html[data-nova='on'] .btn-primary,
+html[data-nova='on'] .Button--primary,
+html[data-nova='on'] .button-sidebar-wide {
+  background: var(--nova-accent-grad) !important;
+  border-color: transparent !important;
+  color: #fff !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35) !important;
+  border-radius: calc(var(--nova-radius) - 4px) !important;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+}
+html[data-nova='on'] .btn-primary:hover,
+html[data-nova='on'] .Button--primary:hover,
+html[data-nova='on'] .button-sidebar-wide:hover { transform: translateY(-1px); filter: brightness(1.06); }
+html[data-nova='on'][data-nova-glow] .button-sidebar-wide:hover { box-shadow: var(--nova-glow) !important; }
+html[data-nova='on'] #content a:not(.btn):not([class*='Button']):not(.ic-DashboardCard__link) { color: var(--nova-accent) !important; }
+
+/* ============================ kill white surfaces (all pages) ============= */
+/* Big structural containers go transparent so the themed page bg shows. */
+html[data-nova='on'] #wrapper,
+html[data-nova='on'] .ic-Layout-contentWrapper,
+html[data-nova='on'] .ic-app-main-content,
+html[data-nova='on'] .ic-app-nav-toggle-and-crumbs,
+html[data-nova='on'] #breadcrumbs,
+html[data-nova='on'] .ic-app-crumbs,
+html[data-nova='on'] #left-side,
+html[data-nova='on'] .ic-app-course-menu,
+html[data-nova='on'] .course-menu-toggle,
+html[data-nova='on'] .user_content,
+html[data-nova='on'] .show-content,
+html[data-nova='on'] .ic-Layout-watermark {
+  background: transparent !important;
+}
+/* Card-like boxes become themed surfaces (this is what removes the white). */
+html[data-nova='on'] .content-box,
+html[data-nova='on'] .ic-Action-header,
+html[data-nova='on'] .ui-widget-content,
+html[data-nova='on'] .ui-widget.ui-widget-content,
+html[data-nova='on'] .Box,
+html[data-nova='on'] .borderless-table,
+html[data-nova='on'] .ic-Table,
+html[data-nova='on'] table.ic-Table,
+html[data-nova='on'] .item-group-condensed,
+html[data-nova='on'] .ig-list,
+html[data-nova='on'] .accessibility-warning,
+html[data-nova='on'] .summary,
+html[data-nova='on'] .pretty_links,
+html[data-nova='on'] #assignment_show,
+html[data-nova='on'] .assignment.content-box {
+  background: var(--nova-surface) !important;
+  color: var(--nova-text) !important;
+  border-color: var(--nova-border) !important;
+}
+/* tables */
+html[data-nova='on'] table tbody,
+html[data-nova='on'] table thead,
+html[data-nova='on'] table tr,
+html[data-nova='on'] table th,
+html[data-nova='on'] table td {
+  background-color: transparent !important;
+  color: var(--nova-text) !important;
+  border-color: var(--nova-border) !important;
+}
+html[data-nova='on'] tr:hover td { background: color-mix(in srgb, var(--nova-accent) 8%, transparent) !important; }
+
+/* form fields */
+html[data-nova='on'] input[type='text'],
+html[data-nova='on'] input[type='search'],
+html[data-nova='on'] input[type='email'],
+html[data-nova='on'] input[type='number'],
+html[data-nova='on'] input[type='password'],
+html[data-nova='on'] textarea,
+html[data-nova='on'] select,
+html[data-nova='on'] .ic-Input {
+  background: var(--nova-surface-2) !important;
+  color: var(--nova-text) !important;
+  border-color: var(--nova-border) !important;
+}
+/* nuke inline white backgrounds Canvas sets directly on elements */
+html[data-nova='on'][data-nova-scheme='dark'] [style*='background-color: #fff'],
+html[data-nova='on'][data-nova-scheme='dark'] [style*='background-color:#fff'],
+html[data-nova='on'][data-nova-scheme='dark'] [style*='background: #fff'],
+html[data-nova='on'][data-nova-scheme='dark'] [style*='background:#fff'],
+html[data-nova='on'][data-nova-scheme='dark'] [style*='background-color: white'],
+html[data-nova='on'][data-nova-scheme='dark'] [style*='background-color: rgb(255, 255, 255)'] {
+  background-color: var(--nova-surface) !important;
+  background-image: none !important;
+}
+
+/* per-course left nav links */
+html[data-nova='on'] #section-tabs li a {
+  color: var(--nova-text) !important;
+  border-radius: 8px !important;
+  transition: background 0.14s ease, transform 0.14s ease;
+}
+html[data-nova='on'] #section-tabs li a:hover { background: color-mix(in srgb, var(--nova-accent) 12%, transparent) !important; transform: translateX(2px); }
+html[data-nova='on'] #section-tabs li.section a.active,
+html[data-nova='on'] #section-tabs li a[aria-current] { background: color-mix(in srgb, var(--nova-accent) 20%, transparent) !important; color: var(--nova-accent) !important; }
+
+/* breadcrumbs text */
+html[data-nova='on'] #breadcrumbs li a,
+html[data-nova='on'] #breadcrumbs li span { color: var(--nova-text-muted) !important; }
+
+/* ============================ modules page ============================ */
+html[data-nova='on'] .context_module {
+  background: var(--nova-surface) !important;
+  border: 1px solid var(--nova-border) !important;
+  border-radius: var(--nova-radius) !important;
+  margin-bottom: var(--nova-gap) !important;
+  overflow: hidden !important;
+  box-shadow: var(--nova-shadow) !important;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+html[data-nova='on'][data-nova-glow] .context_module:hover { box-shadow: var(--nova-glow) !important; }
+html[data-nova='on'] .context_module > .header,
+html[data-nova='on'] .context_module .ig-header,
+html[data-nova='on'] .ig-header {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--nova-accent) 16%, var(--nova-surface-2)), var(--nova-surface-2)) !important;
+  color: var(--nova-text) !important;
+  border-bottom: 1px solid var(--nova-border) !important;
+}
+html[data-nova='on'] .context_module .ig-header .name,
+html[data-nova='on'] .ig-header-title,
+html[data-nova='on'] .module-item-title,
+html[data-nova='on'] .ig-title { color: var(--nova-heading) !important; font-family: var(--nova-heading-font) !important; }
+html[data-nova='on'] .context_module_item,
+html[data-nova='on'] .ig-row {
+  background: transparent !important;
+  border-color: var(--nova-border) !important;
+  transition: background 0.14s ease, transform 0.14s ease;
+}
+html[data-nova='on'] .context_module_item:hover,
+html[data-nova='on'] .ig-row:hover {
+  background: color-mix(in srgb, var(--nova-accent) 9%, transparent) !important;
+  transform: translateX(3px);
+}
+html[data-nova='on'] .ig-row .ig-title { color: var(--nova-text) !important; }
+html[data-nova='on'] .ig-row .ig-details__item,
+html[data-nova='on'] .ig-row .points_possible { color: var(--nova-text-muted) !important; }
+/* completion check icons in modules pick up the accent */
+html[data-nova='on'] .ig-row .completion_status .icon-check,
+html[data-nova='on'] .module-item-status-icon .icon-check { color: var(--nova-accent) !important; }
+
+/* ============================ calendar (/calendar) ============================ */
+html[data-nova='on'] .calendar .fc-event,
+html[data-nova='on'] .fc-event {
+  border: none !important;
+  border-radius: 8px !important;
+  padding: 2px 6px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18) !important;
+  transition: transform 0.12s ease;
+}
+html[data-nova='on'] .fc-event:hover { transform: scale(1.02); }
+html[data-nova='on'] .fc-today,
+html[data-nova='on'] .fc-day.fc-today,
+html[data-nova='on'] .fc-state-highlight { background: color-mix(in srgb, var(--nova-accent) 14%, transparent) !important; }
+html[data-nova='on'] .fc-button,
+html[data-nova='on'] .calendar .fc-button {
+  background: var(--nova-surface) !important; color: var(--nova-text) !important;
+  border: 1px solid var(--nova-border) !important; border-radius: 8px !important; text-shadow: none !important;
+}
+html[data-nova='on'] .fc-button.fc-state-active { background: var(--nova-accent) !important; color: #fff !important; }
+html[data-nova='on'] .fc-widget-header,
+html[data-nova='on'] .fc-widget-content { border-color: var(--nova-border) !important; }
+html[data-nova='on'] #calendar-app,
+html[data-nova='on'] .calendar-wrapper { background: transparent !important; }
+html[data-nova='on'] #minical .fc-day.fc-today { background: var(--nova-accent) !important; color: #fff !important; }
+
+/* ============================ animations ============================ */
+@keyframes novaFadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes novaFadeIn { from { opacity: 0; } to { opacity: 1; } }
+html[data-nova='on'][data-nova-anim] .ic-DashboardCard { animation: novaFadeUp 0.45s cubic-bezier(.2,.7,.3,1) both; }
+html[data-nova='on'][data-nova-anim] .ic-DashboardCard__box__container:nth-child(2) .ic-DashboardCard { animation-delay: 0.05s; }
+html[data-nova='on'][data-nova-anim] .ic-DashboardCard__box__container:nth-child(3) .ic-DashboardCard { animation-delay: 0.1s; }
+html[data-nova='on'][data-nova-anim] .ic-DashboardCard__box__container:nth-child(4) .ic-DashboardCard { animation-delay: 0.15s; }
+html[data-nova='on'][data-nova-anim] .Sidebar__TodoListContainer,
+html[data-nova='on'][data-nova-anim] .events_list.recent_feedback { animation: novaFadeIn 0.5s ease both; }
+@media (prefers-reduced-motion: reduce) {
+  html[data-nova='on'] * { animation: none !important; }
+}
+
+/* ============================ cool touches ============================ */
+/* accent underline bar under the page heading */
+html[data-nova='on'][data-nova-reskin] .ic-Dashboard-header [class*='view-heading']::after {
+  content: ''; display: block; width: 52px; height: 4px; margin-top: 10px; border-radius: 3px;
+  background: linear-gradient(90deg, var(--nova-accent), var(--nova-accent-2));
+}
+/* course-card image gently zooms on hover */
+html[data-nova='on'] .ic-DashboardCard__header_image { transition: transform 0.4s cubic-bezier(.2,.7,.3,1) !important; }
+html[data-nova='on'] .ic-DashboardCard:hover .ic-DashboardCard__header_image { transform: scale(1.07) !important; }
+
+/* animated aurora glow drifting behind dark themes */
+html[data-nova='on'][data-nova-anim][data-nova-scheme='dark'] body::before {
+  content: ''; position: fixed; inset: -25%; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(closest-side at 18% 28%, color-mix(in srgb, var(--nova-accent) 26%, transparent), transparent),
+    radial-gradient(closest-side at 82% 72%, color-mix(in srgb, var(--nova-accent-2) 22%, transparent), transparent);
+  filter: blur(50px); opacity: 0.7;
+  animation: novaDrift 22s ease-in-out infinite alternate;
+}
+@keyframes novaDrift {
+  from { transform: translate3d(-2%, 0, 0) scale(1); }
+  to { transform: translate3d(3%, -5%, 0) scale(1.14); }
+}
+
+/* ============================ profile page (/profile) ============================ */
+html[data-nova='on'] .profile-toolbar,
+html[data-nova='on'] .profile-link,
+html[data-nova='on'] #profile_pic_dialog,
+html[data-nova='on'] .user-observees { background: transparent !important; }
+html[data-nova='on'] .profile_table,
+html[data-nova='on'] table.profile_table,
+html[data-nova='on'] .ic-Table.profile_table {
+  background: var(--nova-surface) !important;
+  border: 1px solid var(--nova-border) !important;
+  border-radius: var(--nova-radius) !important;
+  overflow: hidden !important;
+  box-shadow: var(--nova-shadow) !important;
+}
+html[data-nova='on'] .profile_table th { color: var(--nova-text-muted) !important; }
+html[data-nova='on'] .profile_table td,
+html[data-nova='on'] .profile_table .bio,
+html[data-nova='on'] .channel { color: var(--nova-text) !important; }
+html[data-nova='on'] .avatar,
+html[data-nova='on'] .profile_pic_link,
+html[data-nova='on'] .ic-avatar {
+  border: 2px solid var(--nova-border) !important;
+  box-shadow: var(--nova-shadow) !important;
+}
+html[data-nova='on'] .profile-title,
+html[data-nova='on'] .user_details .name { color: var(--nova-heading) !important; font-family: var(--nova-heading-font) !important; }
+
+/* modules page outer container + list go transparent so cards sit on the bg */
+html[data-nova='on'] #context_modules,
+html[data-nova='on'] #context_modules_sortable_container,
+html[data-nova='on'] .context_module .content,
+html[data-nova='on'] .context_module .ig-list,
+html[data-nova='on'] #modules { background: transparent !important; }
+
+/* ============================ assignments / quizzes index ============================ */
+/* the search / header bar above the list — drop its white slab */
+html[data-nova='on'] .header-bar,
+html[data-nova='on'] .header-bar-right,
+html[data-nova='on'] .quiz-index .header-bar,
+html[data-nova='on'] #content > .pull-right,
+html[data-nova='on'] .search_bar,
+html[data-nova='on'] .quiz-search {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+/* each group becomes a clean rounded card; the outer container is transparent */
+html[data-nova='on'] .item-group-container,
+html[data-nova='on'] .quiz-list,
+html[data-nova='on'] #assignment_quizzes,
+html[data-nova='on'] #ag-list,
+html[data-nova='on'] .assignment_group { background: transparent !important; }
+html[data-nova='on'] .item-group-condensed {
+  background: var(--nova-surface) !important;
+  border: 1px solid var(--nova-border) !important;
+  border-radius: var(--nova-radius) !important;
+  overflow: hidden !important;
+  box-shadow: var(--nova-shadow) !important;
+  margin-bottom: var(--nova-gap) !important;
+}
+/* the rows container is transparent; rows get hairline dividers */
+html[data-nova='on'] .item-group-condensed .ig-list { background: transparent !important; }
+html[data-nova='on'] .item-group-condensed .ig-row { border-bottom: 1px solid var(--nova-border) !important; }
+html[data-nova='on'] .item-group-condensed .ig-row:last-child { border-bottom: none !important; }
+/* search field gets a touch more presence */
+html[data-nova='on'] #searchTerm,
+html[data-nova='on'] input[placeholder^='Search'] {
+  background: var(--nova-surface) !important;
+  border: 1px solid var(--nova-border) !important;
+  border-radius: 10px !important;
+  box-shadow: var(--nova-shadow) !important;
+}
+
+/* ============================ global polish (all pages) ============================ */
+html[data-nova='on'] ::selection { background: color-mix(in srgb, var(--nova-accent) 35%, transparent); }
+html[data-nova='on'] :focus-visible {
+  outline: 2px solid var(--nova-accent) !important;
+  outline-offset: 2px !important;
+  border-radius: 4px;
+}
+html[data-nova='on'] { scroll-behavior: smooth; }
+html[data-nova='on'][data-nova-anim] #content { animation: novaFadeIn 0.4s ease both; }
+/* readable body text inside Canvas rich content on dark themes */
+html[data-nova='on'][data-nova-scheme='dark'] .user_content,
+html[data-nova='on'][data-nova-scheme='dark'] .show-content,
+html[data-nova='on'][data-nova-scheme='dark'] .user_content span:not([style*='color']),
+html[data-nova='on'][data-nova-scheme='dark'] .user_content p,
+html[data-nova='on'][data-nova-scheme='dark'] .user_content li { color: var(--nova-text) !important; }
+/* round avatars everywhere */
+html[data-nova='on'] .ic-avatar,
+html[data-nova='on'] .avatar { border-radius: 50% !important; }
+/* code / pre blocks */
+html[data-nova='on'] pre,
+html[data-nova='on'] code,
+html[data-nova='on'] .user_content pre {
+  background: var(--nova-surface-2) !important;
+  color: var(--nova-text) !important;
+  border: 1px solid var(--nova-border) !important;
+  border-radius: 8px !important;
+}
+
+/* secondary buttons */
+html[data-nova='on'] .btn:not(.btn-primary):not(.Button--primary),
+html[data-nova='on'] .Button:not(.Button--primary):not(.Button--icon-action-rev) {
+  background: var(--nova-surface-2) !important;
+  color: var(--nova-text) !important;
+  border: 1px solid var(--nova-border) !important;
+  border-radius: 8px !important;
+  transition: border-color 0.14s ease, transform 0.14s ease;
+}
+html[data-nova='on'] .btn:not(.btn-primary):hover,
+html[data-nova='on'] .Button:not(.Button--primary):hover { border-color: var(--nova-accent) !important; transform: translateY(-1px); }
+
+/* dropdown menus & popovers */
+html[data-nova='on'] .ui-menu,
+html[data-nova='on'] [role='menu'],
+html[data-nova='on'] .ui-widget.ui-menu,
+html[data-nova='on'] .popover {
+  background: var(--nova-surface) !important;
+  border: 1px solid var(--nova-border) !important;
+  border-radius: var(--nova-radius) !important;
+  box-shadow: var(--nova-shadow-lg) !important;
+  color: var(--nova-text) !important;
+}
+html[data-nova='on'] .ui-menu .ui-menu-item a:hover,
+html[data-nova='on'] [role='menuitem']:hover,
+html[data-nova='on'] .ui-menu-item:hover { background: color-mix(in srgb, var(--nova-accent) 14%, transparent) !important; color: var(--nova-accent) !important; }
+
+/* dialogs / modals */
+html[data-nova='on'] .ui-dialog,
+html[data-nova='on'] [role='dialog'] {
+  background: var(--nova-surface) !important;
+  border: 1px solid var(--nova-border) !important;
+  border-radius: var(--nova-radius) !important;
+  box-shadow: var(--nova-shadow-lg) !important;
+}
+html[data-nova='on'] .ui-dialog .ui-dialog-titlebar { background: var(--nova-surface-2) !important; color: var(--nova-heading) !important; border: none !important; }
+html[data-nova='on'] .ui-widget-overlay { background: rgba(0, 0, 0, 0.45) !important; }
+
+/* tabs */
+html[data-nova='on'] .ui-tabs .ui-tabs-nav,
+html[data-nova='on'] .ui-tabs-nav { background: transparent !important; border-bottom: 1px solid var(--nova-border) !important; }
+html[data-nova='on'] .ui-tabs-nav .ui-tabs-active a,
+html[data-nova='on'] .ui-state-active a { color: var(--nova-accent) !important; box-shadow: inset 0 -3px 0 var(--nova-accent) !important; }
+
+/* flash messages */
+html[data-nova='on'] .ic-flash-info,
+html[data-nova='on'] .ic-flash-success,
+html[data-nova='on'] .ic-flash-warning,
+html[data-nova='on'] .ic-flash-error,
+html[data-nova='on'] .ic-flash-static {
+  border-radius: var(--nova-radius) !important;
+  box-shadow: var(--nova-shadow-lg) !important;
+  border: none !important;
+}
+
+/* pagination */
+html[data-nova='on'] .pagination li a,
+html[data-nova='on'] .ui-pagination a {
+  background: var(--nova-surface) !important;
+  border: 1px solid var(--nova-border) !important;
+  color: var(--nova-text) !important;
+  border-radius: 8px !important;
+}
+html[data-nova='on'] .pagination li.active a { background: var(--nova-accent) !important; color: #fff !important; }
+
+/* global nav slide-out tray (Courses / Groups / Account) */
+html[data-nova='on'] .navigation-tray-container,
+html[data-nova='on'] .navigation-tray-container .tray-with-space-around-content {
+  background: var(--nova-surface) !important;
+  color: var(--nova-text) !important;
+}
+html[data-nova='on'] .navigation-tray-container a { color: var(--nova-accent) !important; }
+html[data-nova='on'] .navigation-tray-container h1,
+html[data-nova='on'] .navigation-tray-container h2 { color: var(--nova-heading) !important; }
+
+/* ============================ grades / inbox / discussions ============================ */
+/* grades */
+html[data-nova='on'] #grades_summary,
+html[data-nova='on'] .student_assignment,
+html[data-nova='on'] #assignments-not-weighted { background: transparent !important; color: var(--nova-text) !important; }
+html[data-nova='on'] .score_holder .grade,
+html[data-nova='on'] .what_if_score,
+html[data-nova='on'] .final_grade .grade { color: var(--nova-accent) !important; font-weight: 700 !important; }
+
+/* inbox / conversations */
+html[data-nova='on'] .conversations .messages,
+html[data-nova='on'] .message-list,
+html[data-nova='on'] .conversations .actions,
+html[data-nova='on'] #conversations_actions { background: transparent !important; }
+html[data-nova='on'] .message-list .message,
+html[data-nova='on'] .conversations .messages li {
+  background: var(--nova-surface) !important;
+  border: 1px solid var(--nova-border) !important;
+  border-radius: 12px !important;
+  margin-bottom: 8px !important;
+  transition: transform 0.14s ease, border-color 0.14s ease;
+}
+html[data-nova='on'] .message-list .message:hover { transform: translateX(3px); border-color: var(--nova-accent) !important; }
+
+/* discussions */
+html[data-nova='on'] .discussion-entry,
+html[data-nova='on'] .entry,
+html[data-nova='on'] .discussion_subentries .entry {
+  background: var(--nova-surface) !important;
+  border: 1px solid var(--nova-border) !important;
+  border-radius: var(--nova-radius) !important;
+}
+html[data-nova='on'] .discussion-section { background: transparent !important; }
