@@ -1,0 +1,65 @@
+/*
+ * Nova Canvas — base restyle.
+ * All rules are gated on [data-nova="on"] so disabling the extension is instant
+ * and total. Colors come from CSS custom properties set by the content script,
+ * so changing a theme/accent only updates variables (no re-injection).
+ */
+
+html[data-nova='on'] body {
+  background: var(--nova-bg) !important;
+  color: var(--nova-text) !important;
+}
+
+/* Links & accent-driven controls */
+html[data-nova='on'] a:not(.btn):not([class*='Button']) {
+  color: var(--nova-accent) !important;
+}
+html[data-nova='on'] a:not(.btn):not([class*='Button']):hover {
+  color: var(--nova-accent-hover) !important;
+}
+
+/* Global left navigation */
+html[data-nova='on'] #menu,
+html[data-nova='on'] .ic-app-header {
+  background: var(--nova-surface) !important;
+  border-color: var(--nova-border) !important;
+}
+
+/* ---- Dashboard course cards (modern redesign) ---- */
+html[data-nova='on'][data-nova-cards] .ic-DashboardCard {
+  background: var(--nova-surface) !important;
+  border: 1px solid var(--nova-border) !important;
+  border-radius: var(--nova-radius) !important;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+html[data-nova='on'][data-nova-cards] .ic-DashboardCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.14);
+}
+html[data-nova='on'][data-nova-cards] .ic-DashboardCard__header_hero {
+  border-radius: 0 !important;
+}
+html[data-nova='on'][data-nova-cards] .ic-DashboardCard__action-container {
+  gap: var(--nova-gap);
+}
+
+/* Generic content surfaces */
+html[data-nova='on'] .ic-app-main-content,
+html[data-nova='on'] #content,
+html[data-nova='on'] .ig-list .ig-row {
+  background: var(--nova-surface) !important;
+  color: var(--nova-text) !important;
+}
+
+/* Buttons that use Canvas brand color → accent */
+html[data-nova='on'] .btn-primary,
+html[data-nova='on'] .Button--primary {
+  background-color: var(--nova-accent) !important;
+  border-color: var(--nova-accent) !important;
+}
+html[data-nova='on'] .btn-primary:hover,
+html[data-nova='on'] .Button--primary:hover {
+  background-color: var(--nova-accent-hover) !important;
+}
