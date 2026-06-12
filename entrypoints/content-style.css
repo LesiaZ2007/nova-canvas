@@ -456,3 +456,42 @@ html[data-nova='on'] #context_modules_sortable_container,
 html[data-nova='on'] .context_module .content,
 html[data-nova='on'] .context_module .ig-list,
 html[data-nova='on'] #modules { background: transparent !important; }
+
+/* ============================ assignments / quizzes index ============================ */
+/* the search / header bar above the list — drop its white slab */
+html[data-nova='on'] .header-bar,
+html[data-nova='on'] .header-bar-right,
+html[data-nova='on'] .quiz-index .header-bar,
+html[data-nova='on'] #content > .pull-right,
+html[data-nova='on'] .search_bar,
+html[data-nova='on'] .quiz-search {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+/* each group becomes a clean rounded card; the outer container is transparent */
+html[data-nova='on'] .item-group-container,
+html[data-nova='on'] .quiz-list,
+html[data-nova='on'] #assignment_quizzes,
+html[data-nova='on'] #ag-list,
+html[data-nova='on'] .assignment_group { background: transparent !important; }
+html[data-nova='on'] .item-group-condensed {
+  background: var(--nova-surface) !important;
+  border: 1px solid var(--nova-border) !important;
+  border-radius: var(--nova-radius) !important;
+  overflow: hidden !important;
+  box-shadow: var(--nova-shadow) !important;
+  margin-bottom: var(--nova-gap) !important;
+}
+/* the rows container is transparent; rows get hairline dividers */
+html[data-nova='on'] .item-group-condensed .ig-list { background: transparent !important; }
+html[data-nova='on'] .item-group-condensed .ig-row { border-bottom: 1px solid var(--nova-border) !important; }
+html[data-nova='on'] .item-group-condensed .ig-row:last-child { border-bottom: none !important; }
+/* search field gets a touch more presence */
+html[data-nova='on'] #searchTerm,
+html[data-nova='on'] input[placeholder^='Search'] {
+  background: var(--nova-surface) !important;
+  border: 1px solid var(--nova-border) !important;
+  border-radius: 10px !important;
+  box-shadow: var(--nova-shadow) !important;
+}
