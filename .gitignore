@@ -35,3 +35,7 @@ pnpm-debug.log*
 AGENTS.md
 CLAUDE.md
 PLAN.md
+
+# local Canvas DOM captures (may contain auth tokens) — never commit
+sample-dom.html
+*.dom.html
