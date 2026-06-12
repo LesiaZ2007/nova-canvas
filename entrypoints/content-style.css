@@ -1,0 +1,193 @@
+/*
+ * Nova Canvas — restyle + full reskin of Canvas (Instructure) LMS.
+ *
+ * Everything is gated on html[data-nova="on"] so disabling is instant + total.
+ * Colors/shape/typography come from CSS custom properties set by the content
+ * script from the resolved theme tokens. Structural changes (sidebar pills,
+ * greeting hero, card layout) are additionally gated on [data-nova-reskin].
+ *
+ * Selectors target stable Instructure class names; if Canvas changes its DOM a
+ * rule simply no-ops rather than breaking the page.
+ */
+
+/* ============================ base / surfaces ============================ */
+html[data-nova='on'] body,
+html[data-nova='on'] #application,
+html[data-nova='on'] #wrapper,
+html[data-nova='on'] #main {
+  background-color: var(--nova-bg) !important;
+  color: var(--nova-text) !important;
+  font-family: var(--nova-font) !important;
+}
+
+html[data-nova='on'] {
+  font-size: calc(100% * var(--nova-font-scale, 1));
+}
+
+html[data-nova='on'] h1,
+html[data-nova='on'] h2,
+html[data-nova='on'] h3,
+html[data-nova='on'] .ic-Dashboard-header__title {
+  font-family: var(--nova-heading-font) !important;
+  color: var(--nova-text) !important;
+}
+
+html[data-nova='on'] a:not(.btn):not([class*='Button']):not(.ic-app-header__menu-list-link) {
+  color: var(--nova-accent) !important;
+}
+
+/* ============================ background patterns ============================ */
+html[data-nova='on'][data-nova-bg='grid'] body {
+  background-image:
+    linear-gradient(var(--nova-pattern-color) 1px, transparent 1px),
+    linear-gradient(90deg, var(--nova-pattern-color) 1px, transparent 1px) !important;
+  background-size: 24px 24px !important;
+}
+html[data-nova='on'][data-nova-bg='dots'] body {
+  background-image: radial-gradient(var(--nova-pattern-color) 1.5px, transparent 1.5px) !important;
+  background-size: 22px 22px !important;
+}
+html[data-nova='on'][data-nova-bg='ruled'] body {
+  background-image: linear-gradient(var(--nova-pattern-color) 1px, transparent 1px) !important;
+  background-size: 100% 28px !important;
+}
+html[data-nova='on'][data-nova-bg='gradient'] body {
+  background-image: linear-gradient(160deg, var(--nova-bg), var(--nova-surface-2)) !important;
+  background-attachment: fixed !important;
+}
+
+/* ============================ global left navigation ============================ */
+html[data-nova='on'] #header,
+html[data-nova='on'] .ic-app-header {
+  background: var(--nova-sidebar-bg) !important;
+  border-color: transparent !important;
+}
+html[data-nova='on'] .ic-app-header__menu-list-link {
+  color: var(--nova-sidebar-text) !important;
+  border-radius: var(--nova-radius) !important;
+}
+
+/* full-reskin: turn nav items into rounded icon+label pills (PrettyCanvas-style) */
+html[data-nova='on'][data-nova-reskin] .ic-app-header__main-navigation {
+  padding: 8px !important;
+}
+html[data-nova='on'][data-nova-reskin] .ic-app-header__menu-list-item {
+  margin: 2px 6px !important;
+}
+html[data-nova='on'][data-nova-reskin] .ic-app-header__menu-list-link {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 10px !important;
+  height: auto !important;
+  padding: 10px 12px !important;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+html[data-nova='on'][data-nova-reskin] .ic-app-header__menu-list-link .menu-item__text {
+  font-size: 13px !important;
+  margin-top: 0 !important;
+}
+html[data-nova='on'][data-nova-reskin] .ic-app-header__menu-list-link:hover {
+  background: color-mix(in srgb, var(--nova-sidebar-active-bg) 30%, transparent) !important;
+  color: #fff !important;
+}
+html[data-nova='on'][data-nova-reskin] .ic-app-header__menu-list-item--active .ic-app-header__menu-list-link,
+html[data-nova='on'][data-nova-reskin] .ic-app-header__menu-list-link.ic-app-header__menu-list-link--active {
+  background: var(--nova-sidebar-active-bg) !important;
+  color: var(--nova-sidebar-active-text) !important;
+}
+/* icons-only sidebar style hides labels */
+html[data-nova='on'][data-nova-sidebar='icons-only'] .menu-item__text {
+  display: none !important;
+}
+
+/* ============================ greeting hero (injected) ============================ */
+html[data-nova='on'] #nova-greeting {
+  background: linear-gradient(135deg, var(--nova-surface), var(--nova-surface-2)) !important;
+  border: 1px solid var(--nova-border);
+  border-radius: var(--nova-radius);
+  padding: 24px 28px;
+  margin: 0 0 var(--nova-gap) 0;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+html[data-nova='on'] #nova-greeting h1 {
+  margin: 0;
+  font-size: 1.9rem;
+  font-family: var(--nova-heading-font) !important;
+}
+html[data-nova='on'] #nova-greeting .nova-star {
+  color: var(--nova-accent);
+}
+html[data-nova='on'] #nova-greeting p {
+  margin: 6px 0 0;
+  color: var(--nova-text-muted);
+}
+
+/* ============================ dashboard course cards ============================ */
+html[data-nova='on'] .ic-DashboardCard {
+  background: var(--nova-surface) !important;
+  border-radius: var(--nova-radius) !important;
+  overflow: hidden !important;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+html[data-nova='on'][data-nova-card='elevated'] .ic-DashboardCard {
+  border: none !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+html[data-nova='on'][data-nova-card='outlined'] .ic-DashboardCard {
+  border: 1px solid var(--nova-border) !important;
+  box-shadow: none !important;
+}
+html[data-nova='on'][data-nova-card='flat'] .ic-DashboardCard {
+  border: 1px solid var(--nova-border) !important;
+}
+html[data-nova='on'][data-nova-card='glass'] .ic-DashboardCard {
+  border: 1px solid var(--nova-border) !important;
+  background: color-mix(in srgb, var(--nova-surface) 80%, transparent) !important;
+  backdrop-filter: blur(8px);
+}
+html[data-nova='on'] .ic-DashboardCard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
+}
+html[data-nova='on'] .ic-DashboardCard__header-title,
+html[data-nova='on'] .ic-DashboardCard__header-subtitle {
+  color: var(--nova-text) !important;
+}
+
+/* ============================ content surfaces & right rail ============================ */
+html[data-nova='on'] #content,
+html[data-nova='on'] .ic-app-main-content,
+html[data-nova='on'] #right-side,
+html[data-nova='on'] .Sidebar__TodoListContainer,
+html[data-nova='on'] .ig-list .ig-row {
+  background-color: var(--nova-surface) !important;
+  color: var(--nova-text) !important;
+}
+html[data-nova='on'][data-nova-reskin] #right-side .events_list,
+html[data-nova='on'][data-nova-reskin] #right-side .to-do-list,
+html[data-nova='on'][data-nova-reskin] .recent_feedback {
+  background: var(--nova-surface) !important;
+  border: 1px solid var(--nova-border) !important;
+  border-radius: var(--nova-radius) !important;
+  padding: 12px !important;
+  margin-bottom: var(--nova-gap) !important;
+}
+
+/* ============================ buttons / accent controls ============================ */
+html[data-nova='on'] .btn-primary,
+html[data-nova='on'] .Button--primary,
+html[data-nova='on'] .Button.Button--primary {
+  background-color: var(--nova-accent) !important;
+  border-color: var(--nova-accent) !important;
+  border-radius: calc(var(--nova-radius) - 4px) !important;
+}
+html[data-nova='on'] .btn-primary:hover,
+html[data-nova='on'] .Button--primary:hover {
+  filter: brightness(0.93);
+}
+
+/* density */
+html[data-nova='on'][data-nova-density='compact'] .ic-DashboardCard {
+  margin: 6px !important;
+}
