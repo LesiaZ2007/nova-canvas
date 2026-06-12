@@ -495,3 +495,140 @@ html[data-nova='on'] input[placeholder^='Search'] {
   border-radius: 10px !important;
   box-shadow: var(--nova-shadow) !important;
 }
+
+/* ============================ global polish (all pages) ============================ */
+html[data-nova='on'] ::selection { background: color-mix(in srgb, var(--nova-accent) 35%, transparent); }
+html[data-nova='on'] :focus-visible {
+  outline: 2px solid var(--nova-accent) !important;
+  outline-offset: 2px !important;
+  border-radius: 4px;
+}
+html[data-nova='on'] { scroll-behavior: smooth; }
+html[data-nova='on'][data-nova-anim] #content { animation: novaFadeIn 0.4s ease both; }
+/* readable body text inside Canvas rich content on dark themes */
+html[data-nova='on'][data-nova-scheme='dark'] .user_content,
+html[data-nova='on'][data-nova-scheme='dark'] .show-content,
+html[data-nova='on'][data-nova-scheme='dark'] .user_content span:not([style*='color']),
+html[data-nova='on'][data-nova-scheme='dark'] .user_content p,
+html[data-nova='on'][data-nova-scheme='dark'] .user_content li { color: var(--nova-text) !important; }
+/* round avatars everywhere */
+html[data-nova='on'] .ic-avatar,
+html[data-nova='on'] .avatar { border-radius: 50% !important; }
+/* code / pre blocks */
+html[data-nova='on'] pre,
+html[data-nova='on'] code,
+html[data-nova='on'] .user_content pre {
+  background: var(--nova-surface-2) !important;
+  color: var(--nova-text) !important;
+  border: 1px solid var(--nova-border) !important;
+  border-radius: 8px !important;
+}
+
+/* secondary buttons */
+html[data-nova='on'] .btn:not(.btn-primary):not(.Button--primary),
+html[data-nova='on'] .Button:not(.Button--primary):not(.Button--icon-action-rev) {
+  background: var(--nova-surface-2) !important;
+  color: var(--nova-text) !important;
+  border: 1px solid var(--nova-border) !important;
+  border-radius: 8px !important;
+  transition: border-color 0.14s ease, transform 0.14s ease;
+}
+html[data-nova='on'] .btn:not(.btn-primary):hover,
+html[data-nova='on'] .Button:not(.Button--primary):hover { border-color: var(--nova-accent) !important; transform: translateY(-1px); }
+
+/* dropdown menus & popovers */
+html[data-nova='on'] .ui-menu,
+html[data-nova='on'] [role='menu'],
+html[data-nova='on'] .ui-widget.ui-menu,
+html[data-nova='on'] .popover {
+  background: var(--nova-surface) !important;
+  border: 1px solid var(--nova-border) !important;
+  border-radius: var(--nova-radius) !important;
+  box-shadow: var(--nova-shadow-lg) !important;
+  color: var(--nova-text) !important;
+}
+html[data-nova='on'] .ui-menu .ui-menu-item a:hover,
+html[data-nova='on'] [role='menuitem']:hover,
+html[data-nova='on'] .ui-menu-item:hover { background: color-mix(in srgb, var(--nova-accent) 14%, transparent) !important; color: var(--nova-accent) !important; }
+
+/* dialogs / modals */
+html[data-nova='on'] .ui-dialog,
+html[data-nova='on'] [role='dialog'] {
+  background: var(--nova-surface) !important;
+  border: 1px solid var(--nova-border) !important;
+  border-radius: var(--nova-radius) !important;
+  box-shadow: var(--nova-shadow-lg) !important;
+}
+html[data-nova='on'] .ui-dialog .ui-dialog-titlebar { background: var(--nova-surface-2) !important; color: var(--nova-heading) !important; border: none !important; }
+html[data-nova='on'] .ui-widget-overlay { background: rgba(0, 0, 0, 0.45) !important; }
+
+/* tabs */
+html[data-nova='on'] .ui-tabs .ui-tabs-nav,
+html[data-nova='on'] .ui-tabs-nav { background: transparent !important; border-bottom: 1px solid var(--nova-border) !important; }
+html[data-nova='on'] .ui-tabs-nav .ui-tabs-active a,
+html[data-nova='on'] .ui-state-active a { color: var(--nova-accent) !important; box-shadow: inset 0 -3px 0 var(--nova-accent) !important; }
+
+/* flash messages */
+html[data-nova='on'] .ic-flash-info,
+html[data-nova='on'] .ic-flash-success,
+html[data-nova='on'] .ic-flash-warning,
+html[data-nova='on'] .ic-flash-error,
+html[data-nova='on'] .ic-flash-static {
+  border-radius: var(--nova-radius) !important;
+  box-shadow: var(--nova-shadow-lg) !important;
+  border: none !important;
+}
+
+/* pagination */
+html[data-nova='on'] .pagination li a,
+html[data-nova='on'] .ui-pagination a {
+  background: var(--nova-surface) !important;
+  border: 1px solid var(--nova-border) !important;
+  color: var(--nova-text) !important;
+  border-radius: 8px !important;
+}
+html[data-nova='on'] .pagination li.active a { background: var(--nova-accent) !important; color: #fff !important; }
+
+/* global nav slide-out tray (Courses / Groups / Account) */
+html[data-nova='on'] .navigation-tray-container,
+html[data-nova='on'] .navigation-tray-container .tray-with-space-around-content {
+  background: var(--nova-surface) !important;
+  color: var(--nova-text) !important;
+}
+html[data-nova='on'] .navigation-tray-container a { color: var(--nova-accent) !important; }
+html[data-nova='on'] .navigation-tray-container h1,
+html[data-nova='on'] .navigation-tray-container h2 { color: var(--nova-heading) !important; }
+
+/* ============================ grades / inbox / discussions ============================ */
+/* grades */
+html[data-nova='on'] #grades_summary,
+html[data-nova='on'] .student_assignment,
+html[data-nova='on'] #assignments-not-weighted { background: transparent !important; color: var(--nova-text) !important; }
+html[data-nova='on'] .score_holder .grade,
+html[data-nova='on'] .what_if_score,
+html[data-nova='on'] .final_grade .grade { color: var(--nova-accent) !important; font-weight: 700 !important; }
+
+/* inbox / conversations */
+html[data-nova='on'] .conversations .messages,
+html[data-nova='on'] .message-list,
+html[data-nova='on'] .conversations .actions,
+html[data-nova='on'] #conversations_actions { background: transparent !important; }
+html[data-nova='on'] .message-list .message,
+html[data-nova='on'] .conversations .messages li {
+  background: var(--nova-surface) !important;
+  border: 1px solid var(--nova-border) !important;
+  border-radius: 12px !important;
+  margin-bottom: 8px !important;
+  transition: transform 0.14s ease, border-color 0.14s ease;
+}
+html[data-nova='on'] .message-list .message:hover { transform: translateX(3px); border-color: var(--nova-accent) !important; }
+
+/* discussions */
+html[data-nova='on'] .discussion-entry,
+html[data-nova='on'] .entry,
+html[data-nova='on'] .discussion_subentries .entry {
+  background: var(--nova-surface) !important;
+  border: 1px solid var(--nova-border) !important;
+  border-radius: var(--nova-radius) !important;
+}
+html[data-nova='on'] .discussion-section { background: transparent !important; }
