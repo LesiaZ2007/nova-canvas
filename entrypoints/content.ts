@@ -1,5 +1,6 @@
 import { getSettings, settingsStore, resolveTokens, type NovaSettings } from '@/lib/settings';
 import { tokensToVars, tokensToAttrs, tokensToFlags } from '@/lib/tokens';
+import { NAV_ITEMS } from '@/lib/navItems';
 import './content-style.css';
 
 // content-style.css is bundled into the manifest's content_scripts.css by WXT,
@@ -12,12 +13,19 @@ export default defineContentScript({
     apply(await getSettings());
     const unwatch = settingsStore.watch((next) => apply(next ?? undefined));
     ctx.onInvalidated(() => unwatch());
+
+    // Nav icons need the nav in the DOM; re-apply on ready.
+    const onReady = () => applyNavIcons(latest);
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', onReady, { once: true });
+    else onReady();
   },
 });
 
 const CUSTOM_ID = 'nova-canvas-custom-css';
+let latest: NovaSettings | undefined;
 
 function apply(settings: NovaSettings | undefined) {
+  latest = settings;
   const root = document.documentElement;
 
   if (!settings || !settings.enabled) {
@@ -25,6 +33,7 @@ function apply(settings: NovaSettings | undefined) {
       root.removeAttribute(a);
     }
     document.getElementById(CUSTOM_ID)?.remove();
+    applyNavIcons(undefined);
     return;
   }
 
@@ -47,5 +56,28 @@ function apply(settings: NovaSettings | undefined) {
     custom.textContent = settings.customCss;
   } else {
     custom?.remove();
+  }
+
+  applyNavIcons(settings);
+}
+
+/** Replace global-nav icons with the user's chosen emoji/character. */
+function applyNavIcons(settings: NovaSettings | undefined) {
+  const map = settings?.enabled ? settings.navIcons ?? {} : {};
+  for (const item of NAV_ITEMS) {
+    const link = document.querySelector(item.selector);
+    if (!link) continue;
+    const container = link.querySelector('.menu-item-icon-container');
+    link.querySelector('.nova-nav-emoji')?.remove();
+    container?.removeAttribute('data-nova-hide');
+
+    const emoji = map[item.key];
+    if (emoji && container) {
+      container.setAttribute('data-nova-hide', '');
+      const span = document.createElement('span');
+      span.className = 'nova-nav-emoji';
+      span.textContent = emoji;
+      container.parentElement?.insertBefore(span, container);
+    }
   }
 }

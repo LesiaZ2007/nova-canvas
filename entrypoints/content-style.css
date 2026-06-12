@@ -100,6 +100,15 @@ html[data-nova='on'][data-nova-reskin] .ic-app-header__menu-list-item--active .i
   box-shadow: inset 3px 0 0 color-mix(in srgb, var(--nova-sidebar-active-text) 65%, transparent) !important;
 }
 
+/* custom nav icons (emoji replaces the SVG when the user sets one) */
+html[data-nova='on'] .menu-item-icon-container[data-nova-hide] svg,
+html[data-nova='on'] .menu-item-icon-container[data-nova-hide] img { display: none !important; }
+html[data-nova='on'] .nova-nav-emoji {
+  display: flex; align-items: center; justify-content: center;
+  width: 26px; height: 26px; font-size: 20px; line-height: 1;
+}
+html[data-nova='on'][data-nova-reskin] .nova-nav-emoji { width: 24px; min-width: 24px; }
+
 /* keep Canvas's slide-out trays (Courses/Account flyouts) above the wider rail */
 html[data-nova='on'] #nav-tray-portal { z-index: 100000 !important; }
 html[data-nova='on'] #global_nav_tray_container { z-index: 100000 !important; }
@@ -182,6 +191,11 @@ html[data-nova='on'][data-nova-card='gradient-border'] .ic-DashboardCard::after 
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor; mask-composite: exclude;
   z-index: 3;
+}
+/* accent ribbon across the top of every course card */
+html[data-nova='on'][data-nova-reskin] .ic-DashboardCard::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; z-index: 4;
+  background: linear-gradient(90deg, var(--nova-accent), var(--nova-accent-2));
 }
 html[data-nova='on'] .ic-DashboardCard:hover { transform: translateY(-4px) scale(1.012) !important; box-shadow: var(--nova-shadow-lg) !important; }
 html[data-nova='on'][data-nova-glow] .ic-DashboardCard:hover { box-shadow: var(--nova-glow), var(--nova-shadow-lg) !important; }

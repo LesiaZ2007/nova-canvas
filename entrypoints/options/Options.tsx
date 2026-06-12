@@ -1,6 +1,7 @@
 import { useSettings } from '@/lib/useSettings';
 import { DEFAULT_SETTINGS, allThemes } from '@/lib/settings';
 import { FONT_STACKS, type ThemeTokens } from '@/lib/tokens';
+import { NAV_ITEMS } from '@/lib/navItems';
 import { Wordmark } from '@/components/Wordmark';
 
 const FONTS = Object.keys(FONT_STACKS);
@@ -115,6 +116,25 @@ export function Options() {
         <Range label="Corner radius" min={0} max={28} step={1} value={tokens.radius} onChange={(v) => setToken('radius', v)} suffix="px" />
         <Range label="Spacing" min={8} max={28} step={1} value={tokens.gap} onChange={(v) => setToken('gap', v)} suffix="px" />
         <Range label="Border width" min={0} max={4} step={1} value={tokens.borderWidth} onChange={(v) => setToken('borderWidth', v)} suffix="px" />
+      </Section>
+
+      {/* ---------- Nav icons ---------- */}
+      <Section title="Sidebar icons" subtitle="Type an emoji to replace any nav icon. Clear to restore the default.">
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px 24px' }}>
+          {NAV_ITEMS.map((item) => (
+            <div className="nv-row" key={item.key}>
+              <label>{item.label}</label>
+              <input
+                type="text"
+                value={settings.navIcons[item.key] ?? ''}
+                placeholder={item.defaultEmoji}
+                maxLength={4}
+                onChange={(e) => patch({ navIcons: { ...settings.navIcons, [item.key]: e.target.value } })}
+                style={{ width: 64, textAlign: 'center', fontSize: 18 }}
+              />
+            </div>
+          ))}
+        </div>
       </Section>
 
       {/* ---------- Custom CSS ---------- */}

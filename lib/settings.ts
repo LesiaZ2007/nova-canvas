@@ -11,6 +11,8 @@ export interface NovaSettings {
   overrides: Partial<ThemeTokens>;
   /** User-saved themes (full token sets), shown in the gallery alongside built-ins. */
   customThemes: ThemePreset[];
+  /** Per-item global-nav icon overrides — key (dashboard/courses/…) → emoji/char. */
+  navIcons: Record<string, string>;
   /** Full structural reskin (sidebar pills, rebuilt cards). */
   fullReskin: boolean;
   /** Power-user CSS, injected last so it always wins. */
@@ -22,6 +24,7 @@ export const DEFAULT_SETTINGS: NovaSettings = {
   themeId: DEFAULT_THEME_ID,
   overrides: {},
   customThemes: [],
+  navIcons: {},
   fullReskin: true,
   customCss: '',
 };
