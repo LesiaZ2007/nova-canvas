@@ -1,37 +1,38 @@
 import { storage } from 'wxt/storage';
-
-/** A Nova Canvas theme preset. */
-export type ThemeMode = 'system' | 'light' | 'dark' | 'oled';
-
-/** Layout density. */
-export type Density = 'comfortable' | 'compact';
+import type { ThemeTokens } from './tokens';
+import { getTheme, DEFAULT_THEME_ID } from './themes';
 
 export interface NovaSettings {
   /** Master switch — when false the content script makes no changes. */
   enabled: boolean;
-  theme: ThemeMode;
-  /** Accent color as a hex string, drives links/buttons/nav. */
-  accent: string;
-  density: Density;
-  /** Modernized dashboard course cards. */
-  redesignCards: boolean;
-  /** User-supplied custom CSS injected last (power users). */
+  /** Selected bundled theme id (the customization baseline). */
+  themeId: string;
+  /** Per-token customizations layered on top of the selected theme. */
+  overrides: Partial<ThemeTokens>;
+  /** Full structural reskin (sidebar pills, greeting hero, rebuilt cards). */
+  fullReskin: boolean;
+  /** Show the "Good evening, <name>" greeting hero on the dashboard. */
+  showGreeting: boolean;
+  /** Power-user CSS, injected last so it always wins. */
   customCss: string;
 }
 
 export const DEFAULT_SETTINGS: NovaSettings = {
   enabled: true,
-  theme: 'system',
-  accent: '#6d5efc',
-  density: 'comfortable',
-  redesignCards: true,
+  themeId: DEFAULT_THEME_ID,
+  overrides: {},
+  fullReskin: true,
+  showGreeting: true,
   customCss: '',
 };
 
-/** Synced across the user's devices. */
 export const settingsStore = storage.defineItem<NovaSettings>('sync:settings', {
   fallback: DEFAULT_SETTINGS,
-  version: 1,
+  version: 2,
+  migrations: {
+    // v1 used flat theme/accent/density fields — drop them, start fresh on tokens.
+    2: () => DEFAULT_SETTINGS,
+  },
 });
 
 export async function getSettings(): Promise<NovaSettings> {
@@ -39,6 +40,7 @@ export async function getSettings(): Promise<NovaSettings> {
   return { ...DEFAULT_SETTINGS, ...stored };
 }
 
-export function patchSettings(patch: Partial<NovaSettings>) {
-  return getSettings().then((s) => settingsStore.setValue({ ...s, ...patch }));
+/** Resolve the effective tokens: bundled theme + user overrides. */
+export function resolveTokens(settings: NovaSettings): ThemeTokens {
+  return { ...getTheme(settings.themeId).tokens, ...settings.overrides };
 }

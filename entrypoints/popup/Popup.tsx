@@ -1,29 +1,21 @@
-import { Sparkles, Settings as SettingsIcon } from 'lucide-react';
 import { useSettings } from '@/lib/useSettings';
-import type { ThemeMode } from '@/lib/settings';
-
-const THEMES: { value: ThemeMode; label: string }[] = [
-  { value: 'system', label: 'Auto' },
-  { value: 'light', label: 'Light' },
-  { value: 'dark', label: 'Dark' },
-  { value: 'oled', label: 'OLED' },
-];
-
-const ACCENTS = ['#6d5efc', '#3a6fa8', '#10b981', '#f43f5e', '#f59e0b', '#8b5cf6'];
+import { THEMES } from '@/lib/themes';
+import { Wordmark } from '@/components/Wordmark';
 
 export function Popup() {
   const { settings, patch, loaded } = useSettings();
-  if (!loaded) return <div style={{ width: 280, padding: 16 }}>…</div>;
+  if (!loaded) return <div style={{ width: 300, padding: 18 }}>…</div>;
 
   return (
-    <div style={{ width: 280, padding: 14 }}>
-      <div className="nv-brand" style={{ marginBottom: 12 }}>
-        <Sparkles size={18} className="nv-star" /> Nova&nbsp;Canvas
-      </div>
+    <div style={{ width: 300, padding: 16 }}>
+      <Wordmark size={20} />
 
-      <div className="nv-card">
+      <div className="nv-card" style={{ marginTop: 14 }}>
         <div className="nv-row">
-          <label>Enabled on Canvas</label>
+          <div>
+            <label>Nova Canvas</label>
+            <div className="nv-hint">{settings.enabled ? 'Active on Canvas' : 'Paused'}</div>
+          </div>
           <input
             type="checkbox"
             className="nv-switch"
@@ -31,64 +23,63 @@ export function Popup() {
             onChange={(e) => patch({ enabled: e.target.checked })}
           />
         </div>
+      </div>
 
+      <div style={{ margin: '14px 2px 8px', fontSize: 12, color: 'var(--nv-text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+        Theme
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+        {THEMES.map((th) => {
+          const active = settings.themeId === th.id;
+          const tk = th.tokens;
+          return (
+            <button
+              key={th.id}
+              onClick={() => patch({ themeId: th.id })}
+              title={th.blurb}
+              style={{
+                textAlign: 'left',
+                padding: 8,
+                borderRadius: 10,
+                cursor: 'pointer',
+                background: 'var(--nv-surface-2)',
+                border: active ? '2px solid var(--nv-accent)' : '2px solid transparent',
+              }}
+            >
+              <div style={{ display: 'flex', gap: 4, marginBottom: 6 }}>
+                <Swatch c={tk.sidebarBg} />
+                <Swatch c={tk.accent} />
+                <Swatch c={tk.surface} />
+                <Swatch c={tk.bg} />
+              </div>
+              <div style={{ fontSize: 12, fontWeight: 600 }}>
+                {th.emoji} {th.name}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="nv-card" style={{ marginTop: 14 }}>
         <div className="nv-row">
-          <label>Theme</label>
-          <div className="nv-seg">
-            {THEMES.map((t) => (
-              <button
-                key={t.value}
-                aria-pressed={settings.theme === t.value}
-                onClick={() => patch({ theme: t.value })}
-              >
-                {t.label}
-              </button>
-            ))}
-          </div>
+          <label>Full reskin</label>
+          <input type="checkbox" className="nv-switch" checked={settings.fullReskin} onChange={(e) => patch({ fullReskin: e.target.checked })} />
         </div>
-
         <div className="nv-row">
-          <label>Accent</label>
-          <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-            {ACCENTS.map((c) => (
-              <button
-                key={c}
-                onClick={() => patch({ accent: c })}
-                title={c}
-                style={{
-                  width: 20,
-                  height: 20,
-                  borderRadius: '50%',
-                  background: c,
-                  border: settings.accent === c ? '2px solid #fff' : '2px solid transparent',
-                  cursor: 'pointer',
-                }}
-              />
-            ))}
-            <input
-              type="color"
-              value={settings.accent}
-              onChange={(e) => patch({ accent: e.target.value })}
-            />
-          </div>
-        </div>
-
-        <div className="nv-row">
-          <label>Modern course cards</label>
-          <input
-            type="checkbox"
-            className="nv-switch"
-            checked={settings.redesignCards}
-            onChange={(e) => patch({ redesignCards: e.target.checked })}
-          />
+          <label>Greeting banner</label>
+          <input type="checkbox" className="nv-switch" checked={settings.showGreeting} onChange={(e) => patch({ showGreeting: e.target.checked })} />
         </div>
       </div>
 
-      <div style={{ marginTop: 12, textAlign: 'right' }}>
+      <div style={{ marginTop: 14, textAlign: 'center' }}>
         <a className="nv-link" onClick={() => browser.runtime.openOptionsPage()}>
-          <SettingsIcon size={12} style={{ verticalAlign: '-1px' }} /> All settings
+          Customize everything →
         </a>
       </div>
     </div>
   );
+}
+
+function Swatch({ c }: { c: string }) {
+  return <span style={{ width: 14, height: 14, borderRadius: 4, background: c, border: '1px solid rgba(0,0,0,0.15)' }} />;
 }

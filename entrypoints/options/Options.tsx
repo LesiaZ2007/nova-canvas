@@ -1,103 +1,180 @@
-import { Sparkles } from 'lucide-react';
 import { useSettings } from '@/lib/useSettings';
-import { DEFAULT_SETTINGS, type ThemeMode, type Density } from '@/lib/settings';
+import { DEFAULT_SETTINGS } from '@/lib/settings';
+import { THEMES } from '@/lib/themes';
+import { FONT_STACKS, type ThemeTokens } from '@/lib/tokens';
+import { Wordmark } from '@/components/Wordmark';
 
-const THEMES: { value: ThemeMode; label: string }[] = [
-  { value: 'system', label: 'Auto' },
-  { value: 'light', label: 'Light' },
-  { value: 'dark', label: 'Dark' },
-  { value: 'oled', label: 'OLED' },
-];
-const DENSITIES: { value: Density; label: string }[] = [
-  { value: 'comfortable', label: 'Comfortable' },
-  { value: 'compact', label: 'Compact' },
-];
+const FONTS = Object.keys(FONT_STACKS);
+const BACKGROUNDS: ThemeTokens['background'][] = ['none', 'grid', 'ruled', 'dots', 'gradient'];
+const CARDS: ThemeTokens['cardStyle'][] = ['flat', 'outlined', 'elevated', 'glass'];
+const SIDEBARS: ThemeTokens['sidebarStyle'][] = ['pills', 'plain', 'icons-only'];
 
 export function Options() {
-  const { settings, patch, loaded } = useSettings();
+  const { settings, tokens, patch, setToken, loaded } = useSettings();
   if (!loaded) return null;
 
   return (
-    <div style={{ maxWidth: 640, margin: '0 auto', padding: '32px 20px' }}>
-      <div className="nv-brand" style={{ fontSize: 22, marginBottom: 4 }}>
-        <Sparkles size={22} className="nv-star" /> Nova&nbsp;Canvas
-      </div>
-      <p className="nv-hint" style={{ marginTop: 0, marginBottom: 24 }}>
-        A friendlier Canvas, your way. Changes apply live to open Canvas tabs.
+    <div style={{ maxWidth: 760, margin: '0 auto', padding: '40px 22px 80px' }}>
+      <header style={{ marginBottom: 8 }}>
+        <Wordmark size={26} />
+      </header>
+      <p className="nv-hint" style={{ margin: '6px 0 28px', fontStyle: 'italic' }}>
+        Make Canvas yours. Every change applies live to open Canvas tabs.
       </p>
 
-      <div className="nv-card" style={{ marginBottom: 16 }}>
-        <div className="nv-row">
-          <div>
-            <label>Enable Nova Canvas</label>
-            <div className="nv-hint">Master switch — turn off to see vanilla Canvas instantly.</div>
-          </div>
-          <input
-            type="checkbox"
-            className="nv-switch"
-            checked={settings.enabled}
-            onChange={(e) => patch({ enabled: e.target.checked })}
-          />
-        </div>
-        <div className="nv-row">
-          <label>Theme</label>
-          <div className="nv-seg">
-            {THEMES.map((t) => (
-              <button key={t.value} aria-pressed={settings.theme === t.value} onClick={() => patch({ theme: t.value })}>
-                {t.label}
+      {/* ---------- Theme gallery ---------- */}
+      <Section title="Themes" subtitle="Start from a curated theme, then customize anything below.">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(150px,1fr))', gap: 12 }}>
+          {THEMES.map((th) => {
+            const active = settings.themeId === th.id;
+            return (
+              <button
+                key={th.id}
+                onClick={() => patch({ themeId: th.id, overrides: {} })}
+                title={th.blurb}
+                className="nv-theme-card"
+                style={{ border: active ? '2px solid var(--nv-accent)' : '2px solid var(--nv-border)' }}
+              >
+                <div className="nv-theme-preview" style={{ background: th.tokens.bg }}>
+                  <span style={{ background: th.tokens.sidebarBg }} />
+                  <div>
+                    <i style={{ background: th.tokens.accent }} />
+                    <i style={{ background: th.tokens.surface }} />
+                  </div>
+                </div>
+                <div style={{ fontWeight: 600, fontSize: 13, marginTop: 6 }}>{th.emoji} {th.name}</div>
+                <div className="nv-hint" style={{ fontSize: 11 }}>{th.blurb}</div>
               </button>
-            ))}
-          </div>
+            );
+          })}
         </div>
-        <div className="nv-row">
-          <label>Accent color</label>
-          <input type="color" value={settings.accent} onChange={(e) => patch({ accent: e.target.value })} />
-        </div>
-        <div className="nv-row">
-          <label>Density</label>
-          <div className="nv-seg">
-            {DENSITIES.map((d) => (
-              <button key={d.value} aria-pressed={settings.density === d.value} onClick={() => patch({ density: d.value })}>
-                {d.label}
-              </button>
-            ))}
-          </div>
-        </div>
-        <div className="nv-row">
-          <div>
-            <label>Modern course cards</label>
-            <div className="nv-hint">Rounded, elevated dashboard cards with hover lift.</div>
-          </div>
-          <input
-            type="checkbox"
-            className="nv-switch"
-            checked={settings.redesignCards}
-            onChange={(e) => patch({ redesignCards: e.target.checked })}
-          />
-        </div>
-      </div>
+      </Section>
 
-      <div className="nv-card" style={{ marginBottom: 16 }}>
-        <label style={{ display: 'block', marginBottom: 8 }}>Custom CSS</label>
-        <div className="nv-hint" style={{ marginBottom: 8 }}>
-          Power-user override, injected last so it always wins. Uses Nova variables like{' '}
-          <code>var(--nova-accent)</code>.
+      {/* ---------- Layout & structure ---------- */}
+      <Section title="Layout & structure">
+        <Toggle label="Enable Nova Canvas" hint="Master switch — off shows vanilla Canvas." checked={settings.enabled} onChange={(v) => patch({ enabled: v })} />
+        <Toggle label="Full reskin" hint="Rounded sidebar pills, rebuilt cards, greeting hero." checked={settings.fullReskin} onChange={(v) => patch({ fullReskin: v })} />
+        <Toggle label="Greeting banner" hint="“Good evening, …” hero on the dashboard." checked={settings.showGreeting} onChange={(v) => patch({ showGreeting: v })} />
+        <Seg label="Sidebar style" value={tokens.sidebarStyle} options={SIDEBARS} onChange={(v) => setToken('sidebarStyle', v)} />
+        <Seg label="Card style" value={tokens.cardStyle} options={CARDS} onChange={(v) => setToken('cardStyle', v)} />
+        <Seg label="Background" value={tokens.background} options={BACKGROUNDS} onChange={(v) => setToken('background', v)} />
+        <Seg label="Density" value={tokens.density} options={['comfortable', 'compact']} onChange={(v) => setToken('density', v as ThemeTokens['density'])} />
+      </Section>
+
+      {/* ---------- Colors ---------- */}
+      <Section title="Colors" subtitle="Override any color. Reset a theme to discard changes.">
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px 24px' }}>
+          <Color label="Accent" value={tokens.accent} onChange={(v) => setToken('accent', v)} />
+          <Color label="Secondary accent" value={tokens.accent2} onChange={(v) => setToken('accent2', v)} />
+          <Color label="Page background" value={tokens.bg} onChange={(v) => setToken('bg', v)} />
+          <Color label="Surface / cards" value={tokens.surface} onChange={(v) => setToken('surface', v)} />
+          <Color label="Surface (alt)" value={tokens.surface2} onChange={(v) => setToken('surface2', v)} />
+          <Color label="Border" value={tokens.border} onChange={(v) => setToken('border', v)} />
+          <Color label="Text" value={tokens.text} onChange={(v) => setToken('text', v)} />
+          <Color label="Muted text" value={tokens.textMuted} onChange={(v) => setToken('textMuted', v)} />
+          <Color label="Sidebar background" value={tokens.sidebarBg} onChange={(v) => setToken('sidebarBg', v)} />
+          <Color label="Sidebar text" value={tokens.sidebarText} onChange={(v) => setToken('sidebarText', v)} />
+          <Color label="Sidebar active" value={tokens.sidebarActiveBg} onChange={(v) => setToken('sidebarActiveBg', v)} />
+          <Color label="Pattern lines" value={tokens.patternColor.startsWith('#') ? tokens.patternColor : '#cccccc'} onChange={(v) => setToken('patternColor', v)} />
         </div>
+      </Section>
+
+      {/* ---------- Typography & shape ---------- */}
+      <Section title="Typography & shape">
+        <Pick label="Body font" value={tokens.fontFamily} options={FONTS} onChange={(v) => setToken('fontFamily', v)} />
+        <Pick label="Heading font" value={tokens.headingFamily} options={FONTS} onChange={(v) => setToken('headingFamily', v)} />
+        <Range label="Font scale" min={0.85} max={1.3} step={0.05} value={tokens.fontScale} onChange={(v) => setToken('fontScale', v)} suffix="×" />
+        <Range label="Corner radius" min={0} max={28} step={1} value={tokens.radius} onChange={(v) => setToken('radius', v)} suffix="px" />
+        <Range label="Spacing" min={8} max={28} step={1} value={tokens.gap} onChange={(v) => setToken('gap', v)} suffix="px" />
+      </Section>
+
+      {/* ---------- Custom CSS ---------- */}
+      <Section title="Custom CSS" subtitle="Power-user override, injected last. Use vars like var(--nova-accent).">
         <textarea
           value={settings.customCss}
           onChange={(e) => patch({ customCss: e.target.value })}
           spellCheck={false}
-          rows={8}
+          rows={7}
           style={{ width: '100%', fontFamily: 'monospace', resize: 'vertical' }}
-          placeholder={'/* e.g. */\n#menu { background: var(--nova-accent) !important; }'}
+          placeholder={'#right-side { box-shadow: none !important; }'}
         />
-      </div>
+      </Section>
 
-      <div style={{ display: 'flex', gap: 12 }}>
+      <div style={{ display: 'flex', gap: 16, alignItems: 'center', marginTop: 8 }}>
         <ExportImport />
-        <a className="nv-link" style={{ marginLeft: 'auto', alignSelf: 'center' }} onClick={() => patch({ ...DEFAULT_SETTINGS })}>
-          Reset to defaults
-        </a>
+        <a className="nv-link" onClick={() => patch({ overrides: {} })}>Reset customizations</a>
+        <a className="nv-link" style={{ marginLeft: 'auto' }} onClick={() => patch({ ...DEFAULT_SETTINGS })}>Reset everything</a>
+      </div>
+    </div>
+  );
+}
+
+/* ----------------------------- small controls ----------------------------- */
+function Section({ title, subtitle, children }: { title: string; subtitle?: string; children: React.ReactNode }) {
+  return (
+    <section style={{ marginBottom: 24 }}>
+      <h2 style={{ fontFamily: "'Iowan Old Style', Georgia, serif", fontSize: 18, margin: '0 0 2px' }}>{title}</h2>
+      {subtitle && <div className="nv-hint" style={{ marginBottom: 12 }}>{subtitle}</div>}
+      <div className="nv-card">{children}</div>
+    </section>
+  );
+}
+
+function Toggle({ label, hint, checked, onChange }: { label: string; hint?: string; checked: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <div className="nv-row">
+      <div>
+        <label>{label}</label>
+        {hint && <div className="nv-hint">{hint}</div>}
+      </div>
+      <input type="checkbox" className="nv-switch" checked={checked} onChange={(e) => onChange(e.target.checked)} />
+    </div>
+  );
+}
+
+function Seg<T extends string>({ label, value, options, onChange }: { label: string; value: T; options: readonly T[]; onChange: (v: T) => void }) {
+  return (
+    <div className="nv-row">
+      <label>{label}</label>
+      <div className="nv-seg">
+        {options.map((o) => (
+          <button key={o} aria-pressed={value === o} onClick={() => onChange(o)}>{o}</button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function Pick({ label, value, options, onChange }: { label: string; value: string; options: string[]; onChange: (v: string) => void }) {
+  return (
+    <div className="nv-row">
+      <label>{label}</label>
+      <select value={value} onChange={(e) => onChange(e.target.value)}>
+        {options.map((o) => <option key={o} value={o}>{o}</option>)}
+      </select>
+    </div>
+  );
+}
+
+function Color({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
+  return (
+    <div className="nv-row">
+      <label>{label}</label>
+      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        <input type="text" value={value} onChange={(e) => onChange(e.target.value)} style={{ width: 90 }} />
+        <input type="color" value={/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(value) ? value : '#000000'} onChange={(e) => onChange(e.target.value)} />
+      </div>
+    </div>
+  );
+}
+
+function Range({ label, min, max, step, value, suffix, onChange }: { label: string; min: number; max: number; step: number; value: number; suffix?: string; onChange: (v: number) => void }) {
+  return (
+    <div className="nv-row">
+      <label>{label}</label>
+      <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+        <input type="range" min={min} max={max} step={step} value={value} onChange={(e) => onChange(parseFloat(e.target.value))} />
+        <span style={{ width: 48, textAlign: 'right', color: 'var(--nv-text-muted)', fontSize: 13 }}>{value}{suffix}</span>
       </div>
     </div>
   );
@@ -105,17 +182,15 @@ export function Options() {
 
 function ExportImport() {
   const { settings, patch } = useSettings();
-
   const doExport = () => {
     const blob = new Blob([JSON.stringify(settings, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'nova-canvas-settings.json';
+    a.download = 'nova-canvas-theme.json';
     a.click();
     URL.revokeObjectURL(url);
   };
-
   const doImport = () => {
     const input = document.createElement('input');
     input.type = 'file';
@@ -126,16 +201,15 @@ function ExportImport() {
       try {
         patch(JSON.parse(await file.text()));
       } catch {
-        alert('Could not read that settings file.');
+        alert('Could not read that theme file.');
       }
     };
     input.click();
   };
-
   return (
     <>
-      <a className="nv-link" onClick={doExport}>Export settings</a>
-      <a className="nv-link" onClick={doImport}>Import settings</a>
+      <a className="nv-link" onClick={doExport}>Export theme</a>
+      <a className="nv-link" onClick={doImport}>Import theme</a>
     </>
   );
 }

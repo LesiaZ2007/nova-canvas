@@ -1,7 +1,8 @@
 import { useEffect, useState, useCallback } from 'react';
-import { getSettings, settingsStore, DEFAULT_SETTINGS, type NovaSettings } from './settings';
+import { getSettings, settingsStore, resolveTokens, DEFAULT_SETTINGS, type NovaSettings } from './settings';
+import type { ThemeTokens } from './tokens';
 
-/** React hook: live settings + a patch() that writes back to chrome.storage. */
+/** React hook: live settings, resolved tokens, and writers back to chrome.storage. */
 export function useSettings() {
   const [settings, setSettings] = useState<NovaSettings>(DEFAULT_SETTINGS);
   const [loaded, setLoaded] = useState(false);
@@ -23,12 +24,24 @@ export function useSettings() {
 
   const patch = useCallback(
     (p: Partial<NovaSettings>) => {
-      const next = { ...settings, ...p };
-      setSettings(next); // optimistic
-      return settingsStore.setValue(next);
+      setSettings((cur) => {
+        const next = { ...cur, ...p };
+        settingsStore.setValue(next);
+        return next;
+      });
     },
-    [settings],
+    [],
   );
 
-  return { settings, patch, loaded };
+  /** Override a single design token (writes into settings.overrides). */
+  const setToken = useCallback(<K extends keyof ThemeTokens>(key: K, value: ThemeTokens[K]) => {
+    setSettings((cur) => {
+      const next = { ...cur, overrides: { ...cur.overrides, [key]: value } };
+      settingsStore.setValue(next);
+      return next;
+    });
+  }, []);
+
+  const tokens = resolveTokens(settings);
+  return { settings, tokens, patch, setToken, loaded };
 }

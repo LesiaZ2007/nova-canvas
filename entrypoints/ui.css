@@ -131,3 +131,46 @@ a.nv-link {
   cursor: pointer;
   text-decoration: none;
 }
+a.nv-link:hover {
+  text-decoration: underline;
+}
+
+/* Theme gallery cards */
+.nv-theme-card {
+  text-align: left;
+  background: var(--nv-surface);
+  border-radius: 12px;
+  padding: 8px;
+  cursor: pointer;
+  transition: transform 0.12s ease;
+}
+.nv-theme-card:hover {
+  transform: translateY(-2px);
+}
+.nv-theme-preview {
+  display: flex;
+  height: 46px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--nv-border);
+}
+.nv-theme-preview > span {
+  width: 30%;
+}
+.nv-theme-preview > div {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.nv-theme-preview > div > i {
+  flex: 1;
+}
+
+input[type='range'] {
+  accent-color: var(--nv-accent);
+}
+
+/* Scholarly background flourish for popup/options */
+body {
+  background-image: radial-gradient(circle at 100% 0%, rgba(109, 94, 252, 0.08), transparent 40%);
+}
