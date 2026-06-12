@@ -9,10 +9,8 @@ export interface NovaSettings {
   themeId: string;
   /** Per-token customizations layered on top of the selected theme. */
   overrides: Partial<ThemeTokens>;
-  /** Full structural reskin (sidebar pills, greeting hero, rebuilt cards). */
+  /** Full structural reskin (sidebar pills, rebuilt cards). */
   fullReskin: boolean;
-  /** Show the "Good evening, <name>" greeting hero on the dashboard. */
-  showGreeting: boolean;
   /** Power-user CSS, injected last so it always wins. */
   customCss: string;
 }
@@ -22,7 +20,6 @@ export const DEFAULT_SETTINGS: NovaSettings = {
   themeId: DEFAULT_THEME_ID,
   overrides: {},
   fullReskin: true,
-  showGreeting: true,
   customCss: '',
 };
 

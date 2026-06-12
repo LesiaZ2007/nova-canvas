@@ -65,10 +65,6 @@ export function Popup() {
           <label>Full reskin</label>
           <input type="checkbox" className="nv-switch" checked={settings.fullReskin} onChange={(e) => patch({ fullReskin: e.target.checked })} />
         </div>
-        <div className="nv-row">
-          <label>Greeting banner</label>
-          <input type="checkbox" className="nv-switch" checked={settings.showGreeting} onChange={(e) => patch({ showGreeting: e.target.checked })} />
-        </div>
       </div>
 
       <div style={{ marginTop: 14, textAlign: 'center' }}>

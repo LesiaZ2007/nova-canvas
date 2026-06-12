@@ -3,8 +3,8 @@ import { tokensToVars, tokensToAttrs } from '@/lib/tokens';
 import './content-style.css';
 
 // content-style.css is bundled into the manifest's content_scripts.css by WXT,
-// so it's injected straight into the Canvas page. Here we toggle attributes and
-// CSS variables on <html>, and inject the greeting hero when full-reskin is on.
+// so it's injected straight into the Canvas page. Here we just toggle attributes
+// and CSS variables on <html>; the stylesheet does the visual work.
 export default defineContentScript({
   matches: ['*://*.instructure.com/*'],
   runAt: 'document_start',
@@ -12,22 +12,12 @@ export default defineContentScript({
     apply(await getSettings());
     const unwatch = settingsStore.watch((next) => apply(next ?? undefined));
     ctx.onInvalidated(() => unwatch());
-
-    // Greeting hero needs the DOM ready and re-checks on SPA navigation.
-    const onReady = () => maybeInjectGreeting();
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', onReady, { once: true });
-    } else {
-      onReady();
-    }
   },
 });
 
 const CUSTOM_ID = 'nova-canvas-custom-css';
-let lastSettings: NovaSettings | undefined;
 
 function apply(settings: NovaSettings | undefined) {
-  lastSettings = settings;
   const root = document.documentElement;
 
   if (!settings || !settings.enabled) {
@@ -35,7 +25,6 @@ function apply(settings: NovaSettings | undefined) {
       root.removeAttribute(a);
     }
     document.getElementById(CUSTOM_ID)?.remove();
-    document.getElementById('nova-greeting')?.remove();
     return;
   }
 
@@ -57,40 +46,4 @@ function apply(settings: NovaSettings | undefined) {
   } else {
     custom?.remove();
   }
-
-  maybeInjectGreeting();
-}
-
-function timeGreeting(): string {
-  const h = new Date().getHours();
-  if (h < 12) return 'Good morning';
-  if (h < 18) return 'Good afternoon';
-  return 'Good evening';
-}
-
-/** Inject a friendly greeting hero at the top of the dashboard (full reskin only). */
-function maybeInjectGreeting() {
-  const s = lastSettings;
-  const onDashboard = location.pathname === '/' || location.pathname.startsWith('/?');
-  if (!s?.enabled || !s.fullReskin || !s.showGreeting || !onDashboard) {
-    document.getElementById('nova-greeting')?.remove();
-    return;
-  }
-  if (document.getElementById('nova-greeting')) return;
-
-  const content = document.querySelector('#content, #dashboard, .ic-Dashboard-header');
-  if (!content) return;
-
-  // Best-effort first name from the global nav avatar / profile link.
-  const nameEl = document.querySelector('[data-testid="logged-in-user"], .ic-user-name, #global_nav_profile_link .menu-item__text');
-  const name = (nameEl?.textContent || '').trim().split(/\s+/)[0] || '';
-
-  const hero = document.createElement('div');
-  hero.id = 'nova-greeting';
-  hero.innerHTML = `
-    <div class="nova-greeting-inner">
-      <h1>${timeGreeting()}${name ? `, ${name}` : ''} <span class="nova-star">✦</span></h1>
-      <p>Here's your day. Make it count.</p>
-    </div>`;
-  content.prepend(hero);
 }

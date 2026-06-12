@@ -53,8 +53,7 @@ export function Options() {
       {/* ---------- Layout & structure ---------- */}
       <Section title="Layout & structure">
         <Toggle label="Enable Nova Canvas" hint="Master switch — off shows vanilla Canvas." checked={settings.enabled} onChange={(v) => patch({ enabled: v })} />
-        <Toggle label="Full reskin" hint="Rounded sidebar pills, rebuilt cards, greeting hero." checked={settings.fullReskin} onChange={(v) => patch({ fullReskin: v })} />
-        <Toggle label="Greeting banner" hint="“Good evening, …” hero on the dashboard." checked={settings.showGreeting} onChange={(v) => patch({ showGreeting: v })} />
+        <Toggle label="Full reskin" hint="Rounded sidebar pills + rebuilt cards." checked={settings.fullReskin} onChange={(v) => patch({ fullReskin: v })} />
         <Seg label="Sidebar style" value={tokens.sidebarStyle} options={SIDEBARS} onChange={(v) => setToken('sidebarStyle', v)} />
         <Seg label="Card style" value={tokens.cardStyle} options={CARDS} onChange={(v) => setToken('cardStyle', v)} />
         <Seg label="Background" value={tokens.background} options={BACKGROUNDS} onChange={(v) => setToken('background', v)} />
